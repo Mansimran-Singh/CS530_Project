@@ -1,2 +1,7 @@
-# CS530_Project
-CS-530 Project
+<h1>Voluntary Spam App</h1>
+
+The Voluntary Spam App is a framework designed to achieve the following ends. The primary goal of this framework is to allow Event Subscribers to receive notifications to their mobile device about events that may be of interest to them. These Event Subscribers can identify themselves with a set of categories relating to their interest in how they wish to interact with these events. An Event Coordinator will be able to schedule and categorize events on a calendar interface. From the same interface, the Event Coordinator will be able to send push notifications about those events to the phones of Event Subscribers that have selected categories relating to that event.
+
+<h2>Backlog</h2>
+
+*Trello Link:* <https://trello.com/b/a6NauLwf/cs530>
