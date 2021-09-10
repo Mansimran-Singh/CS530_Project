@@ -7,9 +7,9 @@ const should = require('chai').should();
 
 describe('app_tests.js', () => {
     describe('/GET', () => {
-        // it('returns successfully', () => {
-        //     should.fail();
-        // });
+        it('returns successfully', () => {
+            should.fail();
+        });
     });
     
 });

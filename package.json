@@ -2,7 +2,7 @@
     "scripts": {
         "start": "node app",
         "dev": "nodemon ./api/app.js",
-        "test": "mocha ./**/*tests.js --recursive --timeout 5000"
+        "test": "mocha ./tests --recursive --timeout 5000"
     },
     "dependencies": {
         "express": "^4.17.1",
