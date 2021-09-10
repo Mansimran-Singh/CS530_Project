@@ -1,2 +1,4 @@
-# CS530_Project
-CS-530 Project
+
+required packages:
+    npm install mongodb express mocha chai --save
+    npm install -D nodemon
