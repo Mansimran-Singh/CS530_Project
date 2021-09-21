@@ -11,7 +11,16 @@ class LoginPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.blueGrey.shade100,
       appBar: AppBar(
-        title: const Text("Voluntary Spam App"),
+        title: const Text("VOLUNTARY SPAM APP"),
+        automaticallyImplyLeading: false,
+        centerTitle: true,
+        leading: const Icon(Icons.calendar_today),
+        leadingWidth: 100,
+        shadowColor: Colors.blueAccent,
+        toolbarHeight: 100,
+        toolbarOpacity: 0.5,
+        elevation: 15,
+        titleTextStyle: const TextStyle(fontSize: 32, color: Colors.white,)
       ),
       body: Center(
         child: SizedBox(
@@ -80,15 +89,15 @@ class LoginPage extends StatelessWidget {
                             final _email = _emailController.text;
                             final _password = _passwordController.text;
                             FirebaseAuth.instance
-                              .signInWithEmailAndPassword(
-                                email: _email,
-                                password: _password,
-                              )
-                              .then((_) => Navigator.of(context).pushNamed('/home'))
-                              .catchError((error){
-                                showErrorDialog(context, error);
-                              });
-                            
+                                .signInWithEmailAndPassword(
+                                  email: _email,
+                                  password: _password,
+                                )
+                                .then((_) =>
+                                    Navigator.of(context).pushNamed('/home'))
+                                .catchError((error) {
+                              showErrorDialog(context, error);
+                            });
                           }
                         },
                         child: const Text('Login'),
@@ -105,17 +114,21 @@ class LoginPage extends StatelessWidget {
   }
 
   Future<dynamic> showErrorDialog(BuildContext context, error) {
-    return showDialog(context: context, builder: (context){
-                                return AlertDialog(
-                                  title: const Text('Error!'),
-                                  content: Text(error.message),
-                                  actions: [
-                                    TextButton(onPressed: (){
-                                      Navigator.of(context).pop();
-                                    }, child: const Text('Dismiss'))
-                                  ],
-                                );
-                              });
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Error!'),
+            content: Text(error.message),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Dismiss'))
+            ],
+          );
+        });
   }
 
   bool isValidEmail(String email) {
