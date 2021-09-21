@@ -10,9 +10,7 @@ const logger = require('./middleware/logger');
 
 // additional modules
 require('./notification')(app);
-// require('./api/categories')(app);
-const api_categories = require('./api/categories/categories');
-app.use('/api/categories', api_categories);
+app.use('/api/categories', require('./api/categories/categories'));
 
 
 const port = env.httpPort ?? 5001;
