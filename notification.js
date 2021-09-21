@@ -1,16 +1,18 @@
 const express = require('express');
+const router = express.Router();
 const env = require('./env.js');
 const db = require('./db');
-const app = express();
 
-module.exports = (app) => {
-    app.get('/notify', (req, res) => {
-        db.client.connect((err, client) => {
-            if (err !== undefined) {
-                res.sendStatus(`Error occurred while sending notification: ${JSON.stringify(err)}`); // TODO: remove before prod
-            }
-            res.send(`Notification sent`);
-        });
+router.get('/:category/:message/', (req, res) => {
+    const category = req.params.category;
+    const message = req.params.message;
+
+    db.client.connect((err, client) => {
+        if (err !== undefined) {
+            res.sendStatus(`Error occurred while sending notification: ${JSON.stringify(err)}`); // TODO: remove before prod
+        }
+        res.send(`Notification sent`);
     });
+});
 
-}
+module.exports = router;

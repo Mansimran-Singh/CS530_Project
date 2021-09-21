@@ -9,7 +9,8 @@ const db = require('./db');
 const logger = require('./middleware/logger');
 
 // additional modules
-require('./notification')(app);
+// require('./notification')(app);
+app.use('/notify', require('./notification'));
 app.use('/api/categories', require('./api/categories/categories'));
 
 
