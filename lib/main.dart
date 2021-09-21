@@ -1,7 +1,5 @@
-
-import 'package:cs530_project/home.dart';
-import 'package:cs530_project/login/login_page.dart';
 import 'package:cs530_project/not_found_page.dart';
+import 'package:cs530_project/route_controller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -11,7 +9,6 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -20,7 +17,7 @@ class MyApp extends StatelessWidget {
         StreamProvider<User?>(
           create: (context) => FirebaseAuth.instance.authStateChanges(),
           initialData: null,
-      )
+        )
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -30,9 +27,9 @@ class MyApp extends StatelessWidget {
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
         initialRoute: '/home',
-        onGenerateRoute: (page){
+        onGenerateRoute: (page) {
           // print(page.name);
-          return MaterialPageRoute(builder: (context){
+          return MaterialPageRoute(builder: (context) {
             return RouteController(pageName: page.name!);
           });
         },
@@ -45,31 +42,5 @@ class MyApp extends StatelessWidget {
         },
       ),
     );
-  }
-}
-
-class RouteController extends StatelessWidget {
-  final String pageName;
-  const RouteController({
-    Key? key, required this.pageName,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final userSignedIn = Provider.of<User?>(context) != null;
-
-    final notSignedInGoHome = !userSignedIn && pageName == '/home';
-    final singedInGoHome = userSignedIn && pageName == '/home';
-
-    if (pageName == '/') {
-      return Home();
-    }else if (notSignedInGoHome || pageName == '/login') {
-      return LoginPage();      
-    }else if (singedInGoHome) {
-      return Home();  
-    }else{
-      return NotFoundPage();      
-    }
-    
   }
 }
