@@ -10,5 +10,8 @@ The Voluntary Spam App is a framework designed to achieve the following ends. Th
 
 required packages:
 
-- npm install mongodb express mocha chai --save
+- npm install mongodb express mocha chai moment --save
 - npm install -D nodemon
+
+
+### run

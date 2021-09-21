@@ -1,9 +1,9 @@
 const express = require('express');
-const env = require('./../env.js');
+const env = require('./env.js');
 const db = require('./db');
 const app = express();
 
-module.exports = function(app) {
+module.exports = (app) => {
     app.get('/notify', (req, res) => {
         db.client.connect((err, client) => {
             if (err !== undefined) {
