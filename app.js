@@ -33,7 +33,7 @@ app.get('/', (req, res) => {
 
     db.client.connect((err, client) => {
         if (err !== undefined) {
-            res.sendStatus(`Error occured while connecting to database: ${JSON.stringify(err)}`); // TODO: remove before prod
+            res.sendStatus(401); // TODO: remove before prod
         }
         res.sendFile(path.join(__dirname, 'views/api', 'index.html'))
         // res.json(...);
