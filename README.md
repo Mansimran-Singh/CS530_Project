@@ -13,5 +13,13 @@ required packages:
 - npm install mongodb express mocha chai moment --save
 - npm install -D nodemon
 
+### Firebase init, use legos gmail account
+$ npm install -g firebase-tools 
+
+$ firebase init hosting
+
+$ firebase init functions
+### for local testing
+$ firebase serve --only hosting,functions 
 
 ### run
