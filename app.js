@@ -22,7 +22,7 @@ app.use(logger);
 
 
 // static file location
-app.use(express.static(path.join(__dirname, 'shared')));
+app.use(express.static(path.join(__dirname, 'public')));
 
 
 // main application
