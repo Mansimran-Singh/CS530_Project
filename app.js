@@ -8,22 +8,24 @@ const path = require('path');
 const db = require('./db');
 const logger = require('./middleware/logger');
 
-// additional modules
-// require('./notification')(app);
-app.use('/notify', require('./notification'));
-app.use('/api/categories', require('./api/categories/categories'));
-
-
+// configuration
 const port = env.httpPort ?? 5001;
 
-// static file location
-app.use(express.static(path.join(__dirname, 'shared')));
+
+// additional modules
+app.use('/notify', require('./notification'));
+app.use('/categories', require('./api/categories/categories'));
 
 
 // middleware registration
 app.use(logger);
 
 
+// static file location
+app.use(express.static(path.join(__dirname, 'shared')));
+
+
+// main application
 app.listen(port, () => {
     console.log(`Example app listening at ${env.hostAddress}:${port}`);
 });
@@ -39,4 +41,8 @@ app.get('/', (req, res) => {
         // res.send(__dirname);
     });
 
+});
+
+app.get('/test/error', (req, res) => {
+    res.sendStatus(500);
 });

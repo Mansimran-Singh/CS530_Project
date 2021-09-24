@@ -7,13 +7,17 @@ const { MongoClient } = require("mongodb");
 router.get('/', (req, res) => {
     const client = new MongoClient(env.mongoDbConnectionString);
     client.connect((err, db) => {
-        if (err)
-            throw err;
+        if (err) {
+            res.sendStatus(500);
+            return;
+        }
         
         let dbo = db.db(env.databaseName);
         dbo.collection('categories').find({}).toArray((err, result) => {
-            if (err)
-                throw err;
+            if (err) {
+                res.sendStatus(500);
+                return;
+            }
 
             db.close();
             res.json(result);

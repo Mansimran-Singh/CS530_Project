@@ -10,7 +10,10 @@ const logger = (req, res, next) => {
     const time = moment().format();
     const user = os.userInfo();
 
-    console.log(`${time} -- ${user.uid} -- ${user.username}: ${protocol}://${host}${url}`);
+    res.end = (chunk, encoding) => {
+        console.log(`${time} (uid: ${user.uid} name:${user.username}): ${protocol}://${host}${url} ${res.statusCode}`);
+    };
+    // console.log(`${time} (uid: ${user.uid} name:${user.username}): ${protocol}://${host}${url} ${res.statusCode}`);
     
     next();
 };
