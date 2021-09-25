@@ -46,3 +46,6 @@ app.get('/', (req, res) => {
 app.get('/test/error', (req, res) => {
     res.sendStatus(500);
 });
+
+
+module.exports = app;
