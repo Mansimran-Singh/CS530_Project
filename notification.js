@@ -11,7 +11,7 @@ router.use(express.json());
 
 
 router.post('/', (req, res) => {
-
+    const eventid = req.body.eventid;
     const deviceid = req.body.deviceid ?? null;
     const category = req.body.category ?? 'ALL';
     const title = req.body.title ?? 'Spam Notification';
