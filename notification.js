@@ -11,7 +11,10 @@ router.use(express.json());
 
 
 router.post('/', (req, res) => {
-    const eventid = req.body.eventid;
+    const userInfo = os.userInfo();
+
+    const eventid = req.body.eventid ?? null;
+    const userid = req.body.userid ?? userInfo.uid;
     const deviceid = req.body.deviceid ?? null;
     const category = req.body.category ?? 'ALL';
     const title = req.body.title ?? 'Spam Notification';
@@ -46,16 +49,16 @@ router.post('/', (req, res) => {
                 return;
             }
 
-            const user = os.userInfo();
             let obj = {
-                eventId: null,
                 time: moment.utc().format(),
                 url: url,
                 headers: headers,
                 body: body,
-                uid: user.uid,
-                username: user.username,
+                
+                username: userInfo.username,
 
+                eventId: null,
+                uid: userid,
                 deviceid: deviceid,
                 category: category,
                 title: title,

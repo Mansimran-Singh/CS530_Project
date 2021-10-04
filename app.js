@@ -8,6 +8,7 @@ const path = require('path');
 // local modules
 const db = require('./db');
 const logger = require('./middleware/logger');
+const errorhandler = require('./middleware/errorhandler');
 
 
 // configuration
@@ -16,6 +17,7 @@ const port = env.httpPort ?? 5001;
 
 // middleware registration
 app.use(logger);
+
 
 
 // static file location
@@ -38,11 +40,17 @@ app.use('/categories', require('./api/categories/categories'));
 app.get('/', (req, res) => {
     db.client.connect((err, client) => {
         if (err !== undefined) {
-            res.sendStatus(401);
+            res.sendStatus(500);
         }
         res.sendFile(path.join(__dirname, 'views/api', 'index.html'))
     });
 });
+
+
+app.get('/error', (req, res) => {
+    throw new Error('barf?');
+});
+app.use(errorhandler); // has to be at the end of app.js for... reasons?
 
 
 module.exports = app;

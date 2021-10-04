@@ -26,6 +26,14 @@ router.get('/', (req, res) => {
     });
 });
 
+router.post('/subscribe', (req, res) => {
+    const deviceid = req.body.deviceid;
+    const categories = req.body.categories;
+
+    // TODO: finish
+    res.sendStatus(500);
+});
+
 module.exports = router;
 
 
