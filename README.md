@@ -19,20 +19,27 @@ f4b5nstn8c1jmq6koff2r69asg@group.calendar.google.com
 
 required packages:
 
-- npm install mongodb express mocha chai moment request --save
-- npm install -D nodemon
+$ npm install mongodb express mocha chai moment request --save
+$ npm install -D nodemon
+
+### log out and log back in with new account if previously initialized the project with another
+$ firebase logout
+$ firebase login
 
 ### Firebase init, use legos gmail account
 
-npm install -g firebase-tools
+$ npm install -g firebase-tools
 
-firebase init hosting
+$ firebase init hosting
 
-firebase init functions
+$ firebase init functions
 
 ### for local testing
+$ firebase serve --only hosting,functions
 
-firebase serve --only hosting,functions
+### for local debugging using emulators
+$ firebase emulators:start --inspect-functions
 
-npm test (runs all unit tests)
-npm run dev
+### runs all unit tests
+$ npm test  
+$ npm run dev
