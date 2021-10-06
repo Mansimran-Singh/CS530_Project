@@ -3,6 +3,7 @@ const express = require('express');
 const env = require('./env.js');
 const app = express();
 const path = require('path');
+const os = require('os');
 
 
 // local modules
@@ -12,7 +13,7 @@ const errorhandler = require('./middleware/errorhandler');
 
 
 // configuration
-const port = env.httpPort ?? 5001;
+const port = env.httpPort ?? 5002;
 
 
 // middleware registration
@@ -25,11 +26,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 
 // main application
-// if (env.runtime.node) {
-//     app.listen(port, () => {
-//         console.log(`Example app listening at ${env.hostAddress}:${port}`);
-//     });
-// }
+if (env.runtime.node && os.userInfo().username === 'dan') {
+    app.listen(port, () => {
+        console.log(`Example app listening at ${env.hostAddress}:${port}`);
+    });
+}
 
 
 // additional routes

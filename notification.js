@@ -9,13 +9,49 @@ const os = require('os');
 
 router.use(express.json());
 
+router.get('/getprevious', (req, res) => {
+   
+    const category = req.body.category;
+    if (!category) {
+        res.sendStatus(400);
+        return;
+    }
+
+
+    db.client.connect((err, client) => {
+        if (err) {
+            res.status(500).send(`${JSON.stringify(err)}`);
+            return;
+        }
+
+
+        let collection = client.db(env.databaseName).collection('message_history');
+        collection.find({'category': category}).toArray((err1, result) => {
+            if (err1) {
+                res.status(500).send(`${JSON.stringify(err1)}`);
+                return;
+            }
+
+            res.send(result);
+        });
+        // dbo.collection('message_history').insertOne(obj, (err, result) => {
+        //     if (err) {
+        //         res.status(500).send(`Error occurred while sending notification: ${JSON.stringify(err)}`);
+        //         return;
+        //     }
+
+        //     client.close();
+        //     res.status(200).json(result);
+        // });
+    });
+
+});
+
 
 router.post('/', (req, res) => {
     const userInfo = os.userInfo();
 
     const eventid = req.body.eventid ?? null;
-    const userid = req.body.userid ?? userInfo.uid;
-    const deviceid = req.body.deviceid ?? null;
     const category = req.body.category ?? 'ALL';
     const title = req.body.title ?? 'Spam Notification';
     const message = req.body.message ?? null;
@@ -33,7 +69,7 @@ router.post('/', (req, res) => {
             body: message,
         },
         data: {
-            deviceid: deviceid,
+
         }
     };
 
@@ -52,14 +88,11 @@ router.post('/', (req, res) => {
             let obj = {
                 time: moment.utc().format(),
                 url: url,
-                headers: headers,
                 body: body,
                 
                 username: userInfo.username,
 
                 eventId: null,
-                uid: userid,
-                deviceid: deviceid,
                 category: category,
                 title: title,
                 message: message,

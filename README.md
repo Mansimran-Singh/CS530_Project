@@ -23,6 +23,7 @@ $ npm install mongodb express mocha chai moment request --save
 $ npm install -D nodemon
 
 ### log out and log back in with new account if previously initialized the project with another
+
 $ firebase logout
 $ firebase login
 
@@ -35,11 +36,14 @@ $ firebase init hosting
 $ firebase init functions
 
 ### for local testing
+
 $ firebase serve --only hosting,functions
 
 ### for local debugging using emulators
+
 $ firebase emulators:start --inspect-functions
 
 ### runs all unit tests
+
 $ npm test  
 $ npm run dev

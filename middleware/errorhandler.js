@@ -17,6 +17,7 @@ const errorhandler = (err, req, res, next) => {
 
 
     console.error(`${time} (uid: ${user.uid}, name:${user.username}): ${protocol}://${host}${url}`);
+    console.error(`${err}`);
     
     client.connect((err1, client1) => {
         if (err1) {
