@@ -25,12 +25,49 @@ app.use(logger);
 app.use(express.static(path.join(__dirname, 'public')));
 
 
-// main application
-if (env.runtime.node && os.userInfo().username === 'dan') {
-    app.listen(port, () => {
-        console.log(`Example app listening at ${env.hostAddress}:${port}`);
+
+/******************* Shi...... stuff to delete **************************************************************************** */
+const isBrowser = (new Function("try {return this===window;}catch(e){ return false;}"))();
+const isNode = (new Function("try {return this===global;}catch(e){return false;}"))();
+const p = process.env;
+
+console.log(`${ JSON.stringify(p) }`)
+console.log(`isBrowser: ${isBrowser}`);
+console.log(`isNode:    ${isNode}`);
+
+const moment = require('moment');
+const { MongoClient } = require("mongodb");
+const client = new MongoClient(env.mongoDbConnectionString);
+client.connect((err, client) => {
+    if (err) {
+        console.error(JSON.stringify(err));
+        return;
+    }
+
+    const user = os.userInfo();
+    let obj = {
+        time: moment.utc().format(),
+        isBrowser: isBrowser,
+        isNode: isNode,
+        processEnvironment: p,
+    };
+
+    client.db(env.databaseName).collection('trace').insertOne(obj, (err, result) => {
+        if (err)
+            return;
+
+        client.close();
     });
-}
+});
+
+/********************************************************************************************** */
+
+// main application
+// if (env.runtime.node) {
+//     app.listen(port, () => {
+//         console.log(`Example app listening at ${env.hostAddress}:${port}`);
+//     });
+// }
 
 
 // additional routes

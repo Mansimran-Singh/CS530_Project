@@ -9,14 +9,14 @@ const os = require('os');
 
 router.use(express.json());
 
-router.get('/getprevious', (req, res) => {
+
+router.get('/previousByEvent/:id', (req, res) => {
    
-    const category = req.body.category;
-    if (!category) {
+    const eventid = req.params.id;
+    if (!eventid) {
         res.sendStatus(400);
         return;
     }
-
 
     db.client.connect((err, client) => {
         if (err) {
@@ -24,6 +24,32 @@ router.get('/getprevious', (req, res) => {
             return;
         }
 
+        let collection = client.db(env.databaseName).collection('message_history');
+        collection.find({'eventid': eventid}).toArray((err1, result) => {
+            if (err1) {
+                res.status(500).send(`${JSON.stringify(err1)}`);
+                return;
+            }
+
+            res.send(result);
+        });
+    });
+});
+
+// TODO: accept array instead of single parameter
+router.get('/previousByCategory/:category', (req, res) => {
+   
+    const category = req.params.category;
+    if (!category) {
+        res.sendStatus(400);
+        return;
+    }
+
+    db.client.connect((err, client) => {
+        if (err) {
+            res.status(500).send(`${JSON.stringify(err)}`);
+            return;
+        }
 
         let collection = client.db(env.databaseName).collection('message_history');
         collection.find({'category': category}).toArray((err1, result) => {
@@ -34,17 +60,7 @@ router.get('/getprevious', (req, res) => {
 
             res.send(result);
         });
-        // dbo.collection('message_history').insertOne(obj, (err, result) => {
-        //     if (err) {
-        //         res.status(500).send(`Error occurred while sending notification: ${JSON.stringify(err)}`);
-        //         return;
-        //     }
-
-        //     client.close();
-        //     res.status(200).json(result);
-        // });
     });
-
 });
 
 
