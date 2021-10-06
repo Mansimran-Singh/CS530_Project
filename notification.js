@@ -36,11 +36,22 @@ router.get('/previousByEvent/:id', (req, res) => {
     });
 });
 
-// TODO: accept array instead of single parameter
-router.get('/previousByCategory/:category', (req, res) => {
+// requests can be sent in one of two formats:
+//      http://localhost:5001/notify/previousByCategory?category=Volunteer,All
+//      http://localhost:5001/notify/previousByCategory?category=Volunteer&category=All
+router.get('/previousByCategory/:category?', (req, res) => {
    
-    const category = req.params.category;
+    let category = req.params.category || req.query.category;
     if (!category) {
+        res.sendStatus(400);
+        return;
+    }
+
+    if (typeof category === 'string' || category instanceof String) {
+        category = category.split(',');
+    }
+
+    if (!Array.isArray(category)) {
         res.sendStatus(400);
         return;
     }
