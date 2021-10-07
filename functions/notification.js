@@ -10,7 +10,7 @@ const os = require('os');
 router.use(express.json());
 
 
-router.get('/previousByEvent/:id', (req, res) => {
+    router.get('/previousByEvent/:id', (req, res) => {
    
     const eventid = req.params.id;
     if (!eventid) {
@@ -67,10 +67,10 @@ router.get('/previousByCategory/:category', (req, res) => {
 router.post('/', (req, res) => {
     const userInfo = os.userInfo();
 
-    const eventid = req.body.eventid ?? null;
-    const category = req.body.category ?? 'ALL';
-    const title = req.body.title ?? 'Spam Notification';
-    const message = req.body.message ?? null;
+    const eventid = req.body.eventid ? req.body.eventid : null;
+    const category = req.body.category ? reg.body.category : 'ALL';
+    const title = req.body.title ? req.body.title : 'Spam Notification';
+    const message = req.body.message ? req.body.message : null;
 
     let url = env.firebaseMessageEndpoint;
     let headers = {

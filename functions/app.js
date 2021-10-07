@@ -4,6 +4,7 @@ const env = require('./env.js');
 const app = express();
 const path = require('path');
 const os = require('os');
+const engines = require('consolidate');
 
 
 // local modules
@@ -13,7 +14,7 @@ const errorhandler = require('./middleware/errorhandler');
 
 
 // configuration
-const port = env.httpPort ?? 5002;
+const port = env.httpPort ? env.httpPort : 5002;
 
 
 // middleware registration
@@ -22,7 +23,7 @@ app.use(logger);
 
 
 // static file location
-app.use(express.static(path.join(__dirname, 'public')));
+// app.use(express.static(path.join(__dirname, 'public')));
 
 
 
@@ -74,16 +75,24 @@ client.connect((err, client) => {
 app.use('/notify', require('./notification'));
 app.use('/categories', require('./api/categories/categories'));
 
+app.set('views', './views');
+app.engine('ejs', engines.ejs);
+app.set('view engine', 'ejs');
 
 app.get('/', (req, res) => {
     db.client.connect((err, client) => {
         if (err !== undefined) {
             res.sendStatus(500);
         }
-        res.sendFile(path.join(__dirname, 'views/api', 'index.html'))
+        res.render('pages/index.ejs')
+        // res.sendFile(path.join(__dirname, 'views/api', 'index.html'))
     });
 });
 
+app.get('/team', (req, res) => {
+    res.render('pages/team.ejs');
+  }
+);
 
 app.get('/error', (req, res) => {
     throw new Error('barf?');
