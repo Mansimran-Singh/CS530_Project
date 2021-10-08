@@ -21,12 +21,6 @@ const port = env.httpPort ? env.httpPort : 5002;
 app.use(logger);
 
 
-
-// static file location
-// app.use(express.static(path.join(__dirname, 'public')));
-
-
-
 /******************* Shi...... stuff to delete **************************************************************************** */
 // const isBrowser = (new Function("try {return this===window;}catch(e){ return false;}"))();
 // const isNode = (new Function("try {return this===global;}catch(e){return false;}"))();
@@ -69,6 +63,9 @@ if (!runningRemotely) {
     app.listen(port, () => {
         console.log(`Example app listening at ${env.hostAddress}:${port}`);
     });
+
+    // static file location, not needed with firebase hosting
+    app.use(express.static(path.join(__dirname, '../public')));
 }
 
 
