@@ -9,8 +9,10 @@ const os = require('os');
 
 router.use(express.json());
 
-
-    router.get('/previousByEvent/:id', (req, res) => {
+// requests can be sent in one of two formats:
+//      http://localhost:5001/notify/previousByEvent?id=123,987
+//      http://localhost:5001/notify/previousByEvent?id=123&id=987
+router.get('/previousByEvent/:id', (req, res) => {
    
     let eventid = req.params.id || req.query.id;
     if (!eventid) {
