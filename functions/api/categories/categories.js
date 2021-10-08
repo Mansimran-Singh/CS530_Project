@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const env = require('./../../../env');
+const env = require('./../../env');
 const { MongoClient } = require("mongodb");
 
 

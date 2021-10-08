@@ -1,6 +1,6 @@
 // standard modules
 const express = require('express');
-const env = require('./../env.js');
+const env = require('./env.js');
 const app = express();
 const path = require('path');
 const os = require('os');

@@ -1,7 +1,7 @@
 const express = require('express');
 const moment = require('moment');
 const os = require('os');
-const env = require('./../../env');
+const env = require('./../env');
 const { MongoClient } = require("mongodb");
 
 const client = new MongoClient(env.mongoDbConnectionString);
