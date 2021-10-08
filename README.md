@@ -39,6 +39,10 @@ $ firebase init functions
 
 $ firebase serve --only hosting,functions
 
+### for production deployment
+
+$ firebase deploy --only hosting,functions
+
 ### for local debugging using emulators
 
 $ firebase emulators:start --inspect-functions
