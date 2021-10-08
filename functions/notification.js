@@ -33,8 +33,9 @@ router.use(express.json());
             return;
         }
 
+        //{category: {$exists: true,  $in: ["All", "Volunteer"]}}
         let collection = client.db(env.databaseName).collection('message_history');
-        collection.find({'eventid': eventid}).toArray((err1, result) => {
+        collection.find({'eventid': {$exists: true,  $in: eventid}}).toArray((err1, result) => {
             if (err1) {
                 res.status(500).send(`${JSON.stringify(err1)}`);
                 return;
@@ -72,7 +73,7 @@ router.get('/previousByCategory/:category?', (req, res) => {
         }
 
         let collection = client.db(env.databaseName).collection('message_history');
-        collection.find({'category': category}).toArray((err1, result) => {
+        collection.find({'category': {$exists: true,  $in: category}}).toArray((err1, result) => {
             if (err1) {
                 res.status(500).send(`${JSON.stringify(err1)}`);
                 return;
