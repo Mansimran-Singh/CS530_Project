@@ -27,47 +27,48 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 
 /******************* Shi...... stuff to delete **************************************************************************** */
-const isBrowser = (new Function("try {return this===window;}catch(e){ return false;}"))();
-const isNode = (new Function("try {return this===global;}catch(e){return false;}"))();
-const p = process.env;
+// const isBrowser = (new Function("try {return this===window;}catch(e){ return false;}"))();
+// const isNode = (new Function("try {return this===global;}catch(e){return false;}"))();
+// const p = process.env;
 
-console.log(`${ JSON.stringify(p) }`)
-console.log(`isBrowser: ${isBrowser}`);
-console.log(`isNode:    ${isNode}`);
+// console.log(`${ JSON.stringify(p) }`)
+// console.log(`isBrowser: ${isBrowser}`);
+// console.log(`isNode:    ${isNode}`);
 
-const moment = require('moment');
-const { MongoClient } = require("mongodb");
-const client = new MongoClient(env.mongoDbConnectionString);
-client.connect((err, client) => {
-    if (err) {
-        console.error(JSON.stringify(err));
-        return;
-    }
+// const moment = require('moment');
+// const { MongoClient } = require("mongodb");
+// const client = new MongoClient(env.mongoDbConnectionString);
+// client.connect((err, client) => {
+//     if (err) {
+//         console.error(JSON.stringify(err));
+//         return;
+//     }
 
-    const user = os.userInfo();
-    let obj = {
-        time: moment.utc().format(),
-        isBrowser: isBrowser,
-        isNode: isNode,
-        processEnvironment: p,
-    };
+//     const user = os.userInfo();
+//     let obj = {
+//         time: moment.utc().format(),
+//         isBrowser: isBrowser,
+//         isNode: isNode,
+//         processEnvironment: p,
+//     };
 
-    client.db(env.databaseName).collection('trace').insertOne(obj, (err, result) => {
-        if (err)
-            return;
+//     client.db(env.databaseName).collection('trace').insertOne(obj, (err, result) => {
+//         if (err)
+//             return;
 
-        client.close();
-    });
-});
+//         client.close();
+//     });
+// });
 
 /********************************************************************************************** */
 
 // main application
-// if (env.runtime.node) {
-//     app.listen(port, () => {
-//         console.log(`Example app listening at ${env.hostAddress}:${port}`);
-//     });
-// }
+const runningRemotely = process.env.GCLOUD_PROJECT;
+if (!runningRemotely) {
+    app.listen(port, () => {
+        console.log(`Example app listening at ${env.hostAddress}:${port}`);
+    });
+}
 
 
 // additional routes

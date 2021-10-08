@@ -12,8 +12,17 @@ router.use(express.json());
 
 router.get('/previousByEvent/:id', (req, res) => {
    
-    const eventid = req.params.id;
+    let eventid = req.params.id || req.query.id;
     if (!eventid) {
+        res.sendStatus(400);
+        return;
+    }
+
+    if (typeof eventid === 'string' || eventid instanceof String) {
+        eventid = eventid.split(',');
+    }
+
+    if (!Array.isArray(eventid)) {
         res.sendStatus(400);
         return;
     }
