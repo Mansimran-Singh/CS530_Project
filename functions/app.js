@@ -1,6 +1,6 @@
 // standard modules
 const express = require('express');
-const env = require('./env.js');
+const env = require('./../env.js');
 const app = express();
 const path = require('path');
 const os = require('os');
@@ -65,7 +65,7 @@ if (!runningRemotely) {
     });
 
     // static file location, not needed with firebase hosting
-    app.use(express.static(path.join(__dirname, '../public')));
+    app.use(express.static(path.join(__dirname, './../public')));
 }
 
 

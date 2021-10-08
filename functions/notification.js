@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const env = require('./env.js');
+const env = require('./../env.js');
 const db = require('./db');
 const request = require('request');
 const moment = require('moment');

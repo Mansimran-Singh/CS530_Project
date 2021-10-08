@@ -1,7 +1,7 @@
 
 const MongoClient = require('mongodb').MongoClient;
 const assert = require('assert');
-const env = require('./env.js');
+const env = require('./../env');
 
 const agg = [
   {

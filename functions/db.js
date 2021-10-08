@@ -1,4 +1,4 @@
-const env = require('./env.js');
+const env = require('./../env.js');
 const { MongoClient } = require("mongodb");
 
 const client = new MongoClient(env.mongoDbConnectionString);
