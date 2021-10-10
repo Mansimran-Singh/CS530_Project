@@ -20,43 +20,7 @@ const port = env.httpPort ? env.httpPort : 5002;
 // middleware registration
 app.use(logger);
 
-
-/******************* Shi...... stuff to delete **************************************************************************** */
-// const isBrowser = (new Function("try {return this===window;}catch(e){ return false;}"))();
-// const isNode = (new Function("try {return this===global;}catch(e){return false;}"))();
-// const p = process.env;
-
-// console.log(`${ JSON.stringify(p) }`)
-// console.log(`isBrowser: ${isBrowser}`);
-// console.log(`isNode:    ${isNode}`);
-
-// const moment = require('moment');
-// const { MongoClient } = require("mongodb");
-// const client = new MongoClient(env.mongoDbConnectionString);
-// client.connect((err, client) => {
-//     if (err) {
-//         console.error(JSON.stringify(err));
-//         return;
-//     }
-
-//     const user = os.userInfo();
-//     let obj = {
-//         time: moment.utc().format(),
-//         isBrowser: isBrowser,
-//         isNode: isNode,
-//         processEnvironment: p,
-//     };
-
-//     client.db(env.databaseName).collection('trace').insertOne(obj, (err, result) => {
-//         if (err)
-//             return;
-
-//         client.close();
-//     });
-// });
-
 /********************************************************************************************** */
-
 // main application
 const runningRemotely = process.env.GCLOUD_PROJECT;
 if (!runningRemotely) {
@@ -71,7 +35,10 @@ if (!runningRemotely) {
 
 // additional routes
 app.use('/notify', require('./notification'));
-app.use('/categories', require('./api/categories/categories'));
+app.get('/categories',  (req, res) => {
+    res.redirect('/api/categories', 302);
+});
+app.use('/api/categories', require('./api/categories/categories'));
 
 app.set('views', './views');
 app.engine('ejs', engines.ejs);
@@ -83,7 +50,6 @@ app.get('/', (req, res) => {
             res.sendStatus(500);
         }
         res.render('pages/index.ejs')
-        // res.sendFile(path.join(__dirname, 'views/api', 'index.html'))
     });
 });
 
