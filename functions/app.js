@@ -54,14 +54,14 @@ app.get('/', (req, res) => {
             res.sendStatus(500);
         }
         if (runningRemotely)
-            res.render('./views/pages/index.ejs')
+            res.render('pages/index.ejs')
         else
             res.sendFile(path.join(__dirname, 'views/api', 'index.html'))
     });
 });
 
-app.get('/team', (req, res) => {
-    res.render('pages/team.ejs');
+app.get('/about', (req, res) => {
+    res.render('pages/about.ejs');
   }
 );
 
