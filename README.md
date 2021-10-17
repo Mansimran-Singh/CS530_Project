@@ -51,3 +51,15 @@ $ firebase emulators:start --inspect-functions
 
 $ npm test  
 $ npm run dev
+
+### google calendar notes
+
+https://developers.google.com/calendar/api/quickstart/nodejs
+
+https://developers.google.com/calendar/api/guides/auth
+
+https://console.cloud.google.com/apis/api/calendar-json.googleapis.com/credentials?authuser=2&project=poised-resource-327222
+
+https://console.cloud.google.com/apis/credentials/consent?authuser=2&project=poised-resource-327222
+
+
