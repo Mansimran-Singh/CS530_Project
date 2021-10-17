@@ -72,18 +72,24 @@ if (!runningRemotely) {
 // additional routes
 app.use('/notify', require('./notification'));
 app.use('/categories', require('./api/categories/categories'));
+app.use('/calendar', require('./api/calendar/calendar'));
+
 
 app.set('views', './views');
 app.engine('ejs', engines.ejs);
 app.set('view engine', 'ejs');
+
+
 
 app.get('/', (req, res) => {
     db.client.connect((err, client) => {
         if (err !== undefined) {
             res.sendStatus(500);
         }
-        res.render('pages/index.ejs')
-        // res.sendFile(path.join(__dirname, 'views/api', 'index.html'))
+        if (runningRemotely)
+            res.render('./views/pages/index.ejs')
+        else
+            res.sendFile(path.join(__dirname, 'views/api', 'index.html'))
     });
 });
 

@@ -87,11 +87,11 @@ router.get('/previousByCategory/:category?', (req, res) => {
 });
 
 
-router.post('/', (req, res) => {
+router.post('/send', (req, res) => {
     const userInfo = os.userInfo();
 
     const eventid = req.body.eventid ? req.body.eventid : null;
-    const category = req.body.category ? reg.body.category : 'ALL';
+    const category = req.body.category ? req.body.category : 'ALL';
     const title = req.body.title ? req.body.title : 'Spam Notification';
     const message = req.body.message ? req.body.message : null;
 

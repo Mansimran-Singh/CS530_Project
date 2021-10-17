@@ -19,7 +19,7 @@ f4b5nstn8c1jmq6koff2r69asg@group.calendar.google.com
 
 required packages:
 
-$ npm install mongodb express mocha chai moment request --save
+$ npm install mongodb express mocha chai moment request googleapis@39 date-fns --save
 $ npm install -D nodemon
 
 ### log out and log back in with new account if previously initialized the project with another
