@@ -40,6 +40,8 @@ app.get('/categories',  (req, res) => {
 });
 app.use('/api/categories', require('./api/categories/categories'));
 
+app.use('/api/calendar', require('./api/calendar/calendar'));
+
 app.set('views', './views');
 app.engine('ejs', engines.ejs);
 app.set('view engine', 'ejs');
