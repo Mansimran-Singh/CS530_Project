@@ -27,6 +27,7 @@ const SCOPES = [
 const TOKEN_PATH = 'token.json';
 
 
+
 async function authorizeAsync(credentials) {
   const {client_secret, client_id, redirect_uris} = credentials.installed;
   const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
@@ -385,6 +386,46 @@ router.post('/create', (req, res) => {
 });
 
 
+router.get('/token/link', (req,res) => {
+  const {client_secret, client_id, redirect_uris} = env.googleCalendar.desktopCredentials.installed;
+  const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
+  const authUrl = oAuth2Client.generateAuthUrl({ access_type: 'offline', scope: SCOPES, });
+
+  res.status(200).send({url: authUrl});
+});
+
+
+router.post('/token/set', (req, res) => {
+  const {client_secret, client_id, redirect_uris} = env.googleCalendar.desktopCredentials.installed;
+  const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
+
+  let code = req.body.token;
+
+  oAuth2Client.getToken(code, (err, token) => {
+    if (err) {
+        console.error('Error retrieving access token', err);
+        res.status(500).send('Unable to set access token');
+        return;
+    }
+
+    oAuth2Client.setCredentials(token);
+
+    fs.writeFile(TOKEN_PATH, JSON.stringify(token), (err) => {
+      if (err)  {
+        console.error(err);
+        res.status(500).send('Unable to save access token');
+        return;
+      }
+      console.log('Token stored to', TOKEN_PATH);
+
+      res.status(200).send('Token set');
+      return;
+    });
+  
+  });
+});
+
 
 
 module.exports = router;
+
