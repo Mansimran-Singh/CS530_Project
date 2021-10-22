@@ -311,7 +311,7 @@ async function insertEventAsync(oAuth2Client) {
 async function _googleLoginAnd(func, resolve, reject, params) {
   authorizeAsync(env.googleCalendar.desktopCredentials)
     .then((value) => {
-      func(params ?? value)
+      func(params != null ? params : value)
         .then(
           (value) => resolve(value), 
           (reason) => reject(reason)
@@ -320,7 +320,7 @@ async function _googleLoginAnd(func, resolve, reject, params) {
     (reason) => {
       getAccessTokenAsync(reason)
         .then((value) => {
-          func(params ?? value)
+          func(params != null ? params : value)
             .then(
               (value) => resolve(value), 
               (reason) => reject(reason)
