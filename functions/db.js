@@ -7,6 +7,9 @@ const db = {};
 
 db.client = client;
 
+
+
+
 // db.ping = async () => {
 //     try {
 //         await client.connect();

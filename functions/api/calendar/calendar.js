@@ -4,7 +4,7 @@ const env = require('../../env.js');
 const db = require('../../db');
 const moment = require('moment');
 const os = require('os');
-const fs = require('fs');
+// const fs = require('fs');
 const {google} = require('googleapis');
 
 // event colors
@@ -33,14 +33,34 @@ async function authorizeAsync(credentials) {
   const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
 
   return new Promise((resolve, reject) => {
-    fs.readFile(TOKEN_PATH, (err, token) => {
-      if (err) {
-          reject(oAuth2Client);
-          return;
-      }
-      oAuth2Client.setCredentials(JSON.parse(token));
+    // fs.readFile(TOKEN_PATH, (err, token) => {
+    //   if (err) {
+    //       reject(oAuth2Client);
+    //       return;
+    //   }
+    //   oAuth2Client.setCredentials(JSON.parse(token));
 
-      resolve(oAuth2Client);
+    //   resolve(oAuth2Client);
+    // });
+
+    db.client.connect((err, db) => {
+      if (err) {
+        reject(credentials);
+        return;
+      }
+        
+      let dbo = db.db(env.databaseName);
+      dbo.collection('settings').findOne({ name: 'googleCalendarApiToken' }, (err, result) => {
+        if (err) {
+          reject(credentials);
+          return;
+        }
+
+        db.close();
+        oAuth2Client.setCredentials(result.value);
+        resolve(oAuth2Client);
+        return;
+      });
     });
   });
 }
@@ -59,15 +79,39 @@ async function getAccessTokenAsync(oAuth2Client) {
   
       oAuth2Client.setCredentials(token);
 
-      fs.writeFile(TOKEN_PATH, JSON.stringify(token), (err) => {
-        if (err)  {
-          console.error(err);
+      // fs.writeFile(TOKEN_PATH, JSON.stringify(token), (err) => {
+      //   if (err)  {
+      //     console.error(err);
+      //     reject(oAuth2Client);
+      //   }
+
+      //   console.log('Token stored to', TOKEN_PATH);
+      //   resolve(oAuth2Client);
+      // });
+      db.client.connect((err, db) => {
+        if (err) {
           reject(oAuth2Client);
+          return;
         }
-        console.log('Token stored to', TOKEN_PATH);
+          
+        let replacement = {
+          name: 'googleCalendarApiToken', 
+          value: token
+        };
+        let dbo = db.db(env.databaseName);
+        dbo.collection('settings').findOneAndReplace({ name: 'googleCalendarApiToken' }, replacement, (err, result) => {
+          if (err) {
+            reject(oAuth2Client);
+            return;
+          }
+  
+          db.close();
+          resolve(oAuth2Client);
+          return;
+        });
       });
       
-      resolve(oAuth2Client);
+      
     });
   });
 }
@@ -159,7 +203,7 @@ async function insertEventAsync(oAuth2Client) {
 
 
 async function _googleLoginAnd(func, resolve, reject, params) {
-  authorizeAsync(env.googleCalendar.webCredentials)
+  authorizeAsync(env.googleCalendar.getCredentials())
     .then((value) => {
       func(params != null ? params : value)
         .then(
@@ -182,11 +226,20 @@ async function _googleLoginAnd(func, resolve, reject, params) {
 }
 
 
+
+
+
+
+
+
+
+
+
 router.use(express.json());
 
 router.get('/list', (req, res) => {
   _googleLoginAnd(listEventsAsync, (value) => res.json(value), (reason) => res.sendStatus(500))
-  // authorizeAsync(env.googleCalendar.desktopCredentials)
+  // authorizeAsync(env.googleCalendar.getCredentials())
   //   .then((value) => {
   //     listEventsAsync(value)
   //       .then(
@@ -212,7 +265,7 @@ router.get('/list', (req, res) => {
 router.post('/create', (req, res) => {
   // _googleLoginAnd(insertEventAsync, (value) => res.json(value), (reason) => res.sendStatus(500))
 
-  authorizeAsync(env.googleCalendar.webCredentials)
+  authorizeAsync(env.googleCalendar.getCredentials())
     .then((value) => {
       insertEventAsync(value)
         .then(
@@ -225,7 +278,13 @@ router.post('/create', (req, res) => {
         .then((value) => {
           insertEventAsync(value)
             .then(
-              (value) => { res.json(value); }, 
+              (value) => { 
+                
+                // TODO: save to database
+
+
+                res.json(value); 
+              }, 
               (reason) => { res.sendStatus(500); }
             );
         }, (reason) => {
@@ -236,7 +295,7 @@ router.post('/create', (req, res) => {
 
 
 router.get('/token/link', (req,res) => {
-  const {client_secret, client_id, redirect_uris} = env.googleCalendar.webCredentials.installed;
+  const {client_secret, client_id, redirect_uris} = env.googleCalendar.getCredentials().installed;
   const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
   const authUrl = oAuth2Client.generateAuthUrl({ access_type: 'offline', scope: SCOPES, });
 
@@ -244,13 +303,13 @@ router.get('/token/link', (req,res) => {
 });
 
 
-router.get('/token/set', (req, res) => {
-  const {client_secret, client_id, redirect_uris} = env.googleCalendar.webCredentials.installed;
+router.post('/token/set', (req, res) => {
+  const {client_secret, client_id, redirect_uris} = env.googleCalendar.getCredentials().installed;
   const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
 
-  let code = req.query.code.toString();
+  let code = req.body.token;
   if (!code) {
-    res.status(400).send('No authentication code provided in query string');
+    res.status(400).send('No token provided in request body');
     return;
   }
 
