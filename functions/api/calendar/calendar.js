@@ -351,7 +351,7 @@ router.post('/token/set', (req, res) => {
         }
 
         db.close();
-        res.sendStatus(200);
+        res.status(200).send('Token set');
         return;
       });
     });
