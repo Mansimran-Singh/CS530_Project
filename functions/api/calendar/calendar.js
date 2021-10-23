@@ -195,7 +195,6 @@ async function insertEventAsync(oAuth2Client) {
       }
   
       resolve(res.data);
-  
     });
   });
 }
@@ -313,7 +312,6 @@ router.post('/token/set', (req, res) => {
     return;
   }
 
-
   oAuth2Client.getToken(code, (err, token) => {
     if (err) {
         console.error('Error retrieving access token', err);
@@ -323,18 +321,41 @@ router.post('/token/set', (req, res) => {
 
     oAuth2Client.setCredentials(token);
 
-    fs.writeFile(TOKEN_PATH, JSON.stringify(token), (err) => {
-      if (err)  {
-        console.error(err);
-        res.status(500).send('Unable to save access token');
+    // fs.writeFile(TOKEN_PATH, JSON.stringify(token), (err) => {
+    //   if (err)  {
+    //     console.error(err);
+    //     res.status(500).send('Unable to save access token');
+    //     return;
+    //   }
+    //   console.log('Token stored to', TOKEN_PATH);
+
+    //   res.status(200).send('Token set');
+    //   return;
+    // });
+  
+    db.client.connect((err, db) => {
+      if (err) {
+        res.status(500).send('Unable to connect to database');
         return;
       }
-      console.log('Token stored to', TOKEN_PATH);
+        
+      let replacement = {
+        name: 'googleCalendarApiToken', 
+        value: token
+      };
+      let dbo = db.db(env.databaseName);
+      dbo.collection('settings').findOneAndReplace({ name: 'googleCalendarApiToken' }, replacement, (err, result) => {
+        if (err) {
+          res.status(500).send('Unable to save access token');
+          return;
+        }
 
-      res.status(200).send('Token set');
-      return;
+        db.close();
+        res.sendStatus(200);
+        return;
+      });
     });
-  
+
   });
 });
 
