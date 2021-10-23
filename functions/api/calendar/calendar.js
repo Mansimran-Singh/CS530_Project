@@ -159,7 +159,7 @@ async function insertEventAsync(oAuth2Client) {
 
 
 async function _googleLoginAnd(func, resolve, reject, params) {
-  authorizeAsync(env.googleCalendar.desktopCredentials)
+  authorizeAsync(env.googleCalendar.webCredentials)
     .then((value) => {
       func(params != null ? params : value)
         .then(
@@ -212,7 +212,7 @@ router.get('/list', (req, res) => {
 router.post('/create', (req, res) => {
   // _googleLoginAnd(insertEventAsync, (value) => res.json(value), (reason) => res.sendStatus(500))
 
-  authorizeAsync(env.googleCalendar.desktopCredentials)
+  authorizeAsync(env.googleCalendar.webCredentials)
     .then((value) => {
       insertEventAsync(value)
         .then(
@@ -236,7 +236,7 @@ router.post('/create', (req, res) => {
 
 
 router.get('/token/link', (req,res) => {
-  const {client_secret, client_id, redirect_uris} = env.googleCalendar.desktopCredentials.installed;
+  const {client_secret, client_id, redirect_uris} = env.googleCalendar.webCredentials.installed;
   const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
   const authUrl = oAuth2Client.generateAuthUrl({ access_type: 'offline', scope: SCOPES, });
 
@@ -244,13 +244,13 @@ router.get('/token/link', (req,res) => {
 });
 
 
-router.post('/token/set', (req, res) => {
-  const {client_secret, client_id, redirect_uris} = env.googleCalendar.desktopCredentials.installed;
+router.get('/token/set', (req, res) => {
+  const {client_secret, client_id, redirect_uris} = env.googleCalendar.webCredentials.installed;
   const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
 
-  let code = req.body.token;
+  let code = req.query.code.toString();
   if (!code) {
-    res.status(400).send('No token provided in request body');
+    res.status(400).send('No authentication code provided in query string');
     return;
   }
 
