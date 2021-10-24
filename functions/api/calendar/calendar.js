@@ -302,63 +302,80 @@ router.get('/token/link', (req,res) => {
 });
 
 
-router.post('/token/set', (req, res) => {
-  const {client_secret, client_id, redirect_uris} = env.googleCalendar.getCredentials().installed;
-  const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
+// router.post('/token/set', (req, res) => {
+//   const {client_secret, client_id, redirect_uris} = env.googleCalendar.getCredentials().installed;
+//   const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
+//
+//   let code = req.body.token;
+//   if (!code) {
+//     res.status(400).send('No token provided in request body');
+//     return;
+//   }
+//
+//   oAuth2Client.getToken(code, (err, token) => {
+//     if (err) {
+//         console.error('Error retrieving access token', err);
+//         res.status(500).send('Unable to set access token');
+//         return;
+//     }
+//
+//     oAuth2Client.setCredentials(token);
+//
+//     storeToken(res, token, "post");
+//   });
+// });
 
-  let code = req.body.token;
-  if (!code) {
-    res.status(400).send('No token provided in request body');
-    return;
-  }
+router.get('/token/set', (req, res) => {
+	const {client_secret, client_id, redirect_uris} = env.googleCalendar.getCredentials().installed;
+	const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
 
-  oAuth2Client.getToken(code, (err, token) => {
-    if (err) {
-        console.error('Error retrieving access token', err);
-        res.status(500).send('Unable to set access token');
-        return;
-    }
+	let code = req.query.code.toString();
+	if (!code) {
+		res.status(400).send('No authentication code provided in query string');
+		return;
+	}
 
-    oAuth2Client.setCredentials(token);
 
-    // fs.writeFile(TOKEN_PATH, JSON.stringify(token), (err) => {
-    //   if (err)  {
-    //     console.error(err);
-    //     res.status(500).send('Unable to save access token');
-    //     return;
-    //   }
-    //   console.log('Token stored to', TOKEN_PATH);
+	oAuth2Client.getToken(code, (err, token) => {
+		if (err) {
+			console.error('Error retrieving access token', err);
+			res.status(500).send('Unable to set access token');
+			return;
+		}
 
-    //   res.status(200).send('Token set');
-    //   return;
-    // });
-  
-    db.client.connect((err, db) => {
-      if (err) {
-        res.status(500).send('Unable to connect to database');
-        return;
-      }
-        
-      let replacement = {
-        name: 'googleCalendarApiToken', 
-        value: token
-      };
-      let dbo = db.db(env.databaseName);
-      dbo.collection('settings').findOneAndReplace({ name: 'googleCalendarApiToken' }, replacement, (err, result) => {
-        if (err) {
-          res.status(500).send('Unable to save access token');
-          return;
-        }
+		oAuth2Client.setCredentials(token);
 
-        db.close();
-        res.status(200).send('Token set');
-        return;
-      });
-    });
+    storeToken(res, token, "get");
 
-  });
+	});
 });
 
+function storeToken(res, token, type) {
+  db.client.connect((err, db) => {
+    if (err) {
+      res.status(500).send('Unable to connect to database');
+      return;
+    }
+
+    let replacement = {
+      name: 'googleCalendarApiToken',
+      value: token,
+      type: type,
+      time: moment.utc().format(),
+    };
+    let dbo = db.db(env.databaseName);
+    dbo.collection('settings').findOneAndReplace({name: 'googleCalendarApiToken'}, replacement, (err, result) => {
+      if (err) {
+        res.status(500).send('Unable to save access token');
+        return;
+      }
+
+      db.close();
+      res.status(200).send('Token set');
+      return;
+    });
+  });
+}
 
 
 module.exports = router;
