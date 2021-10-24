@@ -6,6 +6,7 @@ const moment = require('moment');
 const os = require('os');
 // const fs = require('fs');
 const {google} = require('googleapis');
+const { oauth2 } = require('googleapis/build/src/apis/oauth2');
 
 // event colors
 // https://developers.google.com/calendar/api/v3/reference/colors/get#.net
@@ -137,6 +138,7 @@ async function listEventsAsync(oAuth2Client) {
     
       const events = res.data.items;
       let results = [];
+      let ids = [];
     
       if (events.length) {
         console.log('Upcoming events:');
@@ -145,6 +147,7 @@ async function listEventsAsync(oAuth2Client) {
           const end = event.end.dateTime || event.end.date;
           console.log(`${start} - ${event.summary}`);
 
+          ids.push(event.id);
           results.push({
             id: event.id,
             summary: event.summary,
@@ -153,6 +156,7 @@ async function listEventsAsync(oAuth2Client) {
             endTime: end,
             htmlLink: event.htmlLink,
             event: event,
+            notifications: [],
           });
         });
 
@@ -160,7 +164,24 @@ async function listEventsAsync(oAuth2Client) {
         console.log('No upcoming events found.');
       }
     
-      resolve(results);
+      db.client.connect((err, db) => {
+        if (err) {
+          reject(oAuth2Client);
+          return;
+        }
+
+        let dbo = db.db(env.databaseName);
+        dbo.collection('events').find({'id': { $in: ids }}).toArray((err, result) => {
+          if (err) {
+              reject(oAuth2Client);
+              return;
+          }
+
+          
+
+          resolve(results);
+        });
+      });      
     });
   });
 }
@@ -192,9 +213,32 @@ async function insertEventAsync(oAuth2Client) {
       if (err) {
         console.error('The API returned an error: ' + err);
         reject(err);
+        return;
       }
-  
-      resolve(res.data);
+
+      let event = res.data;
+      event.notifications = [];
+
+      db.client.connect((err, db) => {
+        if (err) {
+          reject(oAuth2Client);
+          return;
+        }
+
+        let dbo = db.db(env.databaseName);
+        dbo.collection('events').insertOne(event, (err, result) => {
+          if (err) {
+            reject(oAuth2Client);
+            return;
+          }
+
+          db.close();
+          resolve({eventId: result.insertedId.toString()});
+        });
+
+      });
+      
+      
     });
   });
 }
