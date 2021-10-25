@@ -193,28 +193,9 @@ async function listEventsAsync(oAuth2Client) {
   });
 }
 
-async function insertEventAsync(oAuth2Client) {
+async function insertEventAsync(oAuth2Client, params) {
   return new Promise((resolve, reject) => {
     const calendar = google.calendar({version: 'v3', auth: oAuth2Client});
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const start = moment().format();
-    const end = moment(start).add(30, 'minutes').format();
-  
-    let params = {
-      sendUpdates: 'all',
-      colorId: null,
-      start: {
-        dateTime: start,
-        timeZone: tz,
-      },
-      end: {
-        dateTime: end,
-        timeZone: tz,
-      },
-      summary: 'test',
-      description: 'test event',
-    };
-  
   
     calendar.events.insert({calendarId: env.googleCalendar.calendarId, resource: params}, (err, res) => {
       if (err) {
@@ -225,6 +206,7 @@ async function insertEventAsync(oAuth2Client) {
 
       let event = res.data;
       event.notifications = [];
+      event.category = params.category;
 
       db.client.connect((err, db) => {
         if (err) {
@@ -315,9 +297,24 @@ router.get('/list', (req, res) => {
 router.post('/create', (req, res) => {
   // _googleLoginAnd(insertEventAsync, (value) => res.json(value), (reason) => res.sendStatus(500))
 
+  const tz = req.body.tz ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const start = moment().format();
+  const end = moment(start).add(30, 'minutes').format();
+
+  let params = {
+    sendUpdates: 'all',
+    colorId: req.body.colorId ?? null,
+    start: { dateTime: req.body.startTime ?? start, timeZone: tz, },
+    end: { dateTime: req.body.endTime ?? end, timeZone: tz, },
+    summary: req.body.summary ?? 'test',
+    description: req.body.description ?? 'test event',
+    category: req.body.category ?? 'Volunteer'
+  };
+
+
   authorizeAsync(env.googleCalendar.getCredentials())
     .then((value) => {
-      insertEventAsync(value)
+      insertEventAsync(value, params)
         .then(
           (value) => { res.json(value); }, 
           (reason) => { res.sendStatus(500); }
@@ -326,15 +323,9 @@ router.post('/create', (req, res) => {
     (reason) => {
       getAccessTokenAsync(reason)
         .then((value) => {
-          insertEventAsync(value)
+          insertEventAsync(value, params)
             .then(
-              (value) => { 
-                
-                // TODO: save to database
-
-
-                res.json(value); 
-              }, 
+              (value) => { res.json(value); }, 
               (reason) => { res.sendStatus(500); }
             );
         }, (reason) => {
