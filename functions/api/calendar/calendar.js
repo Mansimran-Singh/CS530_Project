@@ -145,7 +145,7 @@ async function listEventsAsync(oAuth2Client) {
         events.map((event, i) => {
           const start = event.start.dateTime || event.start.date;
           const end = event.end.dateTime || event.end.date;
-          console.log(`${start} - ${event.summary}`);
+          console.log(`${start} - ${event.id} - ${event.summary}`);
 
           ids.push(event.id);
           results.push({
@@ -171,12 +171,19 @@ async function listEventsAsync(oAuth2Client) {
         }
 
         let dbo = db.db(env.databaseName);
-        dbo.collection('events').find({'id': { $in: ids }}).toArray((err, result) => {
+        dbo.collection('events').find({'id': { $in: ids }}).toArray((err, dbEvents) => {
           if (err) {
               reject(oAuth2Client);
               return;
           }
 
+          for (let event of results) {
+            let n = dbEvents.filter(x => x.id === event.id)[0];
+            if (n)
+              event.notifications = n.notifications;
+            let c = event.notifications?.length ?? 0;
+            let a = c;
+          }
           
 
           resolve(results);
