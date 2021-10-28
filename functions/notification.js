@@ -16,7 +16,7 @@ router.get('/previousByEvent/:id', (req, res) => {
    
     let eventid = req.params.id || req.query.id;
     if (!eventid) {
-        res.sendStatus(400);
+        res.status(400).send('No event ID provided');
         return;
     }
 
@@ -90,7 +90,7 @@ router.get('/previousByCategory/:category?', (req, res) => {
 router.post('/send', (req, res) => {
     const userInfo = os.userInfo();
 
-    const eventid = req.body.eventid ? req.body.eventid : null;
+    const eventId = req.body.eventid ? req.body.eventid : null;
     const category = req.body.category ? req.body.category : 'ALL';
     const title = req.body.title ? req.body.title : 'Spam Notification';
     const message = req.body.message ? req.body.message : null;
@@ -108,13 +108,19 @@ router.post('/send', (req, res) => {
             body: message,
         },
         data: {
-
+            eventId: eventId
         }
     };
 
     request.post({url: url, json: true, headers: headers, body: body, }, (err, response, responseBody) => {
         if (err || response.statusCode !== 200) {
-            res.sendStatus(501);
+            res.status(500).send({
+                url: url,
+                body: body,
+                statusCode: response.statusCode,
+                message: response.statusMessage,
+                
+            });
             return;
         }
 
@@ -131,7 +137,7 @@ router.post('/send', (req, res) => {
                 
                 username: userInfo.username,
 
-                eventId: null,
+                eventId: eventId,
                 category: category,
                 title: title,
                 message: message,
