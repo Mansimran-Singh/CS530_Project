@@ -53,15 +53,18 @@ app.get('/', (req, res) => {
         if (err !== undefined) {
             res.sendStatus(500);
         }
-        if (runningRemotely)
-            res.render('pages/index.ejs')
-        else
-            res.sendFile(path.join(__dirname, 'views/api', 'index.html'))
+
+        res.render('pages/index.ejs')
     });
 });
 
 app.get('/about', (req, res) => {
     res.render('pages/about.ejs');
+  }
+);
+
+app.get('/calendar', (req, res) => {
+      res.render('pages/calendar.ejs');
   }
 );
 

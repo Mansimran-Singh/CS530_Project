@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Voluntary Spam | Calendar</title>
+
+        <%- include('../partials/head') -%>
+
+        <link href="/bower_components/tui-calendar/dist/tui-calendar.min.css" rel="stylesheet" />
+        <link href="/bower_components/tui-date-picker/dist/tui-date-picker.css" rel="stylesheet" />
+        <link href="/bower_components/tui-time-picker/dist/tui-time-picker.css" rel="stylesheet" />
+
+        <script src="/bower_components/tui-code-snippet/dist/tui-code-snippet.js"></script>
+        <script src="/bower_components/tui-date-picker/dist/tui-date-picker.js"></script>
+        <script src="/bower_components/tui-time-picker/dist/tui-time-picker.js"></script>
+        <script src="/bower_components/tui-calendar/dist/tui-calendar.min.js"></script>
+
+    </head>
+
+    <body id="page-top">
+        <!-- Navigation-->
+        <%- include('../partials/nav') -%>
+
+        <!-- Content-->
+        <section class="content-section text-center" id="content">
+            <div class="container px-4 px-lg-5">
+                <div class="row gx-4 gx-lg-5 justify-content-center">
+                    <div class="col-lg-8">
+                        <h2 class="text-white mb-4">Calendar</h2>
+                    </div>
+                </div>
+
+                <div id="calendar" style="height: 800px;"></div>
+            </div>
+        </section>
+
+        <!-- Footer-->
+        <%- include('../partials/footer') -%>
+
+    </body>
+
+    <script>
+			var calendar = new tui.Calendar('#calendar', {
+				defaultView: 'month',
+				taskView: true,
+				template: {
+					monthDayname: function (dayname) {
+						return '<span class="calendar-week-dayname-name">' + dayname.label + '</span>';
+					}
+				}
+			});
+
+			fetch('/api/calendar/list', {headers: {"Content-Type": "application/json; charset=utf-8"}})
+				.then(res => res.json())
+				.then(response => {
+					console.dir(response);
+					calendar.clear();
+
+					// https://nhn.github.io/tui.calendar/latest/Schedule
+					let schedule = response;
+
+					calendar.createSchedules(schedule, true);
+					calendar.render();
+				})
+				.catch(err => {
+					alert("Filed to retrieve calendar events")
+				});
+    </script>
+</html>
+

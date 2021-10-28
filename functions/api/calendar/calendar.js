@@ -157,6 +157,13 @@ async function listEventsAsync(oAuth2Client) {
             htmlLink: event.htmlLink,
             event: event,
             notifications: [],
+
+            /* tui.Calendar required fields, see https://nhn.github.io/tui.calendar/latest/Schedule */
+            calendarId: env.googleCalendar.calendarId,
+            title: event.summary,
+            category: "time",
+            start: start,
+            end: end,
           });
         });
 

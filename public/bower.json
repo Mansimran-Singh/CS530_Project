@@ -1,0 +1,17 @@
+{
+  "name": "public",
+  "homepage": "https://github.com/Team-Stepping-On-Legos/CS530_Project",
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "tui-calendar": "^1.15"
+  }
+}
