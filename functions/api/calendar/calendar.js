@@ -34,16 +34,6 @@ async function authorizeAsync(credentials) {
   const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
 
   return new Promise((resolve, reject) => {
-    // fs.readFile(TOKEN_PATH, (err, token) => {
-    //   if (err) {
-    //       reject(oAuth2Client);
-    //       return;
-    //   }
-    //   oAuth2Client.setCredentials(JSON.parse(token));
-
-    //   resolve(oAuth2Client);
-    // });
-
     db.client.connect((err, db) => {
       if (err) {
         reject(credentials);
@@ -52,7 +42,7 @@ async function authorizeAsync(credentials) {
         
       let dbo = db.db(env.databaseName);
       dbo.collection('settings').findOne({ name: 'googleCalendarApiToken' }, (err, result) => {
-        if (err) {
+        if (result === null || err) {
           reject(credentials);
           return;
         }
@@ -60,12 +50,14 @@ async function authorizeAsync(credentials) {
         db.close();
         oAuth2Client.setCredentials(result.value);
         resolve(oAuth2Client);
-        return;
       });
     });
   });
 }
 
+/** @deprecated
+ *
+ * */
 async function getAccessTokenAsync(oAuth2Client) {
   return new Promise((resolve, reject) => {
     const authUrl = oAuth2Client.generateAuthUrl({ access_type: 'offline', scope: SCOPES, });
@@ -80,15 +72,6 @@ async function getAccessTokenAsync(oAuth2Client) {
   
       oAuth2Client.setCredentials(token);
 
-      // fs.writeFile(TOKEN_PATH, JSON.stringify(token), (err) => {
-      //   if (err)  {
-      //     console.error(err);
-      //     reject(oAuth2Client);
-      //   }
-
-      //   console.log('Token stored to', TOKEN_PATH);
-      //   resolve(oAuth2Client);
-      // });
       db.client.connect((err, db) => {
         if (err) {
           reject(oAuth2Client);
@@ -108,11 +91,8 @@ async function getAccessTokenAsync(oAuth2Client) {
   
           db.close();
           resolve(oAuth2Client);
-          return;
         });
       });
-      
-      
     });
   });
 }
@@ -233,8 +213,6 @@ async function insertEventAsync(oAuth2Client, params) {
         });
 
       });
-      
-      
     });
   });
 }
@@ -264,40 +242,10 @@ async function _googleLoginAnd(func, resolve, reject, params) {
     });
 }
 
-
-
-
-
-
-
-
-
-
-
 router.use(express.json());
 
 router.get('/list', (req, res) => {
   _googleLoginAnd(listEventsAsync, (value) => res.json(value), (reason) => res.sendStatus(500))
-  // authorizeAsync(env.googleCalendar.getCredentials())
-  //   .then((value) => {
-  //     listEventsAsync(value)
-  //       .then(
-  //         (value) => { res.json(value); }, 
-  //         (reason) => { res.sendStatus(500); }
-  //       );
-  //   }, 
-  //   (reason) => {
-  //     getAccessTokenAsync(reason)
-  //       .then((value) => {
-  //         listEventsAsync(value)
-  //           .then(
-  //             (value) => { res.json(value); }, 
-  //             (reason) => { res.sendStatus(500); }
-  //           );
-  //       }, (reason) => {
-  //         res.status(500).send('Unable to get Google authentication token');
-  //       });
-  //   });
 });
 
 
@@ -343,11 +291,24 @@ router.post('/create', (req, res) => {
 
 
 router.get('/token/link', (req,res) => {
-  const {client_secret, client_id, redirect_uris} = env.googleCalendar.getCredentials().installed;
-  const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
-  const authUrl = oAuth2Client.generateAuthUrl({ access_type: 'offline', scope: SCOPES, });
+  authorizeAsync(env.googleCalendar.getCredentials())
+    .then((value) => {
+        console.log('authorized');
+        res.render('pages/calendar-connected.ejs')
+      },
+      (reason) => {
+        console.log('unauthorized');
 
-  res.status(200).send({url: authUrl});
+        const {client_secret, client_id, redirect_uris} = env.googleCalendar.getCredentials().installed;
+        const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
+        const authUrl = oAuth2Client.generateAuthUrl({access_type: 'offline', scope: SCOPES,});
+
+        res.writeHead(302, {
+          'Location': authUrl
+        });
+
+        res.end();
+      });
 });
 
 
@@ -396,6 +357,11 @@ router.get('/token/set', (req, res) => {
 
     storeToken(res, token, "get");
 
+    res.writeHead(302, {
+      'Location': '/calendar-connected'
+    });
+
+    res.end();
 	});
 });
 
@@ -413,15 +379,13 @@ function storeToken(res, token, type) {
       time: moment.utc().format(),
     };
     let dbo = db.db(env.databaseName);
-    dbo.collection('settings').findOneAndReplace({name: 'googleCalendarApiToken'}, replacement, (err, result) => {
+    dbo.collection('settings').findOneAndReplace({name: 'googleCalendarApiToken'}, replacement, {"upsert": true}, (err, result) => {
       if (err) {
         res.status(500).send('Unable to save access token');
         return;
       }
 
       db.close();
-      res.status(200).send('Token set');
-      return;
     });
   });
 }

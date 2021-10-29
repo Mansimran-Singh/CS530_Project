@@ -68,6 +68,11 @@ app.get('/calendar', (req, res) => {
   }
 );
 
+app.get('/calendar-connected', (req, res) => {
+      res.render('pages/calendar-connected.ejs');
+  }
+);
+
 app.get('/error', (req, res) => {
     throw new Error('barf?');
 });
