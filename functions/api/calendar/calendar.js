@@ -178,7 +178,7 @@ async function listEventsAsync(oAuth2Client) {
         }
 
         let dbo = db.db(env.databaseName);
-        dbo.collection('events').find({'id': { $in: ids }}).toArray((err, dbEvents) => {
+        dbo.collection('message_history').find({'eventId': { $in: ids }}).toArray((err, dbEvents) => {
           if (err) {
               reject(oAuth2Client);
               return;
