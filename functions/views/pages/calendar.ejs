@@ -29,11 +29,9 @@
         </div>
 
         <div class="text-white mb-4" align="left">
-          <button id="prevBtn">Prev</button>
-          <button id="nextBtn">Next</button>
-          <label
-            ><input type="checkbox" id="useWorkweek" checked /> Show Workweek
-          </label>
+          <button id="prevBtn" class="btn btn-sm btn-outline-primary">Prev</button>
+          <button id="nextBtn" class="btn btn-sm btn-outline-primary">Next</button>
+          <label><input type="checkbox" id="useWorkweek" checked /> Hide Weekends</label>
         </div>
 
         <div id="calendar" style="height: 800px"></div>
@@ -52,7 +50,7 @@
     var calendar = new tui.Calendar("#calendar", {
       defaultView: "month",
       month: {
-        workweek: true,
+        workweek: false,
       },
       useCreationPopup: true,
       useDetailPopup: true,
@@ -86,10 +84,6 @@
       // Options for daily, weekly view
       week: {},
 
-      // Options for monthly view.
-      month: {
-        workweek: true,
-      },
     });
 
     fetch("/api/calendar/list", {
