@@ -6,12 +6,10 @@ const path = require('path');
 const os = require('os');
 const engines = require('consolidate');
 
-
 // local modules
 const db = require('./db');
 const logger = require('./middleware/logger');
 const errorhandler = require('./middleware/errorhandler');
-
 
 // configuration
 const port = env.httpPort ? env.httpPort : 5002;
@@ -41,6 +39,7 @@ app.get('/categories',  (req, res) => {
 app.use('/api/categories', require('./api/categories/categories'));
 
 app.use('/api/calendar', require('./api/calendar/calendar'));
+app.use('/calendar', require('./controllers/calendar'));
 
 app.set('views', './views');
 app.engine('ejs', engines.ejs);
@@ -60,16 +59,6 @@ app.get('/', (req, res) => {
 
 app.get('/about', (req, res) => {
     res.render('pages/about.ejs');
-  }
-);
-
-app.get('/calendar', (req, res) => {
-      res.render('pages/calendar.ejs');
-  }
-);
-
-app.get('/calendar-connected', (req, res) => {
-      res.render('pages/calendar-connected.ejs');
   }
 );
 
