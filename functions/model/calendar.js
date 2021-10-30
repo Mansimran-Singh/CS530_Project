@@ -32,6 +32,8 @@ let calendarApi = {};
 
 calendarApi.SCOPES = SCOPES;
 
+const tokenDBFieldName = 'googleCalendarApiToken';
+
 calendarApi.authorizeAsync =  async function authorizeAsync(credentials) {
   const {client_secret, client_id, redirect_uris} = credentials.installed;
   const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
@@ -44,7 +46,7 @@ calendarApi.authorizeAsync =  async function authorizeAsync(credentials) {
       }
         
       let dbo = db.db(env.databaseName);
-      dbo.collection('settings').findOne({ name: 'googleCalendarApiToken' }, (err, result) => {
+      dbo.collection('settings').findOne({ name: tokenDBFieldName }, (err, result) => {
         if (result === null || err) {
           reject(credentials);
           return;
@@ -82,11 +84,11 @@ calendarApi.getAccessTokenAsync = async function getAccessTokenAsync(oAuth2Clien
         }
           
         let replacement = {
-          name: 'googleCalendarApiToken', 
+          name: tokenDBFieldName,
           value: token
         };
         let dbo = db.db(env.databaseName);
-        dbo.collection('settings').findOneAndReplace({ name: 'googleCalendarApiToken' }, replacement, (err, result) => {
+        dbo.collection('settings').findOneAndReplace({ name: tokenDBFieldName }, replacement, (err, result) => {
           if (err) {
             reject(oAuth2Client);
             return;
@@ -243,27 +245,30 @@ calendarApi._googleLoginAnd = async function _googleLoginAnd(func, resolve, reje
     });
 }
 
-calendarApi.storeToken = function storeToken(res, token, type) {
-  db.client.connect((err, db) => {
-    if (err) {
-      res.status(500).send('Unable to connect to database');
-      return;
-    }
+calendarApi.storeToken = async function storeToken(token, type) {
 
-    let replacement = {
-      name: 'googleCalendarApiToken',
-      value: token,
-      type: type,
-      time: moment.utc().format(),
-    };
-    let dbo = db.db(env.databaseName);
-    dbo.collection('settings').findOneAndReplace({name: 'googleCalendarApiToken'}, replacement, {"upsert": true}, (err, result) => {
+  return new Promise((resolve, reject) => {
+    db.client.connect((err, db) => {
       if (err) {
-        res.status(500).send('Unable to save access token');
+        reject('Unable to connect to database');
         return;
       }
 
-      db.close();
+      let replacement = {
+        name: tokenDBFieldName,
+        value: token,
+        type: type,
+        time: moment.utc().format(),
+      };
+      let dbo = db.db(env.databaseName);
+      dbo.collection('settings').findOneAndReplace({name: tokenDBFieldName}, replacement, {"upsert": true}, (err, result) => {
+        if (err) {
+          reject('Unable to save access token, please try again');
+          return;
+        }
+        db.close();
+        resolve(true);
+      });
     });
   });
 }

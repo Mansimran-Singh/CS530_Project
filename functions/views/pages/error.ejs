@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Voluntary Spam | About</title>
+        <%- include('../partials/head') -%>
+    </head>
+    <body id="page-top">
+        <!-- Navigation-->
+        <%- include('../partials/nav') -%>
+
+        <!-- Content-->
+        <section class="content-section text-center" id="content">
+            <div class="container px-4 px-lg-5">
+                <div class="row gx-4 gx-lg-5 justify-content-center">
+                    <div class="col-lg-8">
+                        <h2 class="text-white mb-4">ERROR <%= code %></h2>
+                    </div>
+                </div>
+                <div class="text-danger">
+                    <%= message %>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer-->
+        <%- include('../partials/footer') -%>
+
+    </body>
+</html>
