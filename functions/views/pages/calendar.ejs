@@ -1,69 +1,171 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <title>Voluntary Spam | Calendar</title>
+  <head>
+    <title>Voluntary Spam | Calendar</title>
 
-        <%- include('../partials/head') -%>
+    <%- include('../partials/head') -%>
 
-        <link href="/bower_components/tui-calendar/dist/tui-calendar.min.css" rel="stylesheet" />
-        <link href="/bower_components/tui-date-picker/dist/tui-date-picker.css" rel="stylesheet" />
-        <link href="/bower_components/tui-time-picker/dist/tui-time-picker.css" rel="stylesheet" />
+    <link href="/bower_components/tui-calendar/dist/tui-calendar.min.css" rel="stylesheet" />
+    <link href="/bower_components/tui-date-picker/dist/tui-date-picker.css" rel="stylesheet" />
+    <link href="/bower_components/tui-time-picker/dist/tui-time-picker.css" rel="stylesheet" />
 
-        <script src="/bower_components/tui-code-snippet/dist/tui-code-snippet.js"></script>
-        <script src="/bower_components/tui-date-picker/dist/tui-date-picker.js"></script>
-        <script src="/bower_components/tui-time-picker/dist/tui-time-picker.js"></script>
-        <script src="/bower_components/tui-calendar/dist/tui-calendar.min.js"></script>
+    <script src="/bower_components/tui-code-snippet/dist/tui-code-snippet.js"></script>
+    <script src="/bower_components/tui-time-picker/dist/tui-time-picker.js"></script>
+    <script src="/bower_components/tui-date-picker/dist/tui-date-picker.js"></script>
+    <script src="/bower_components/tui-calendar/dist/tui-calendar.min.js"></script>
+  </head>
 
-    </head>
+  <body id="page-top">
+    <!-- Navigation-->
+    <%- include('../partials/nav') -%>
 
-    <body id="page-top">
-        <!-- Navigation-->
-        <%- include('../partials/nav') -%>
+    <!-- Content-->
+    <section class="content-section" id="content">
+      <div class="container px-4 px-lg-5">
+        <div class="row gx-4 gx-lg-5 justify-content-center">
+          <div class="col-lg-8 text-center">
+            <h2 class="text-white mb-4">Calendar</h2>
+          </div>
+        </div>
 
-        <!-- Content-->
-        <section class="content-section text-center" id="content">
-            <div class="container px-4 px-lg-5">
-                <div class="row gx-4 gx-lg-5 justify-content-center">
-                    <div class="col-lg-8">
-                        <h2 class="text-white mb-4">Calendar</h2>
-                    </div>
-                </div>
+        <div class="text-white mb-4" align="left">
+          <button id="prevBtn" class="btn btn-sm btn-outline-primary">Prev</button>
+          <button id="nextBtn" class="btn btn-sm btn-outline-primary">Next</button>
+          <label><input type="checkbox" id="useWorkweek" checked /> Hide Weekends</label>
+        </div>
 
-                <div id="calendar" style="height: 800px;"></div>
-            </div>
-        </section>
+        <div id="calendar" style="height: 800px"></div>
+      </div>
+    </section>
 
-        <!-- Footer-->
-        <%- include('../partials/footer') -%>
+    <!-- Footer-->
+    <%- include('../partials/footer') -%>
+  </body>
 
-    </body>
+  <script>
+    var prevBtn = document.getElementById("prevBtn");
+    var nextBtn = document.getElementById("nextBtn");
+    var useWorkweek = document.getElementById("useWorkweek");
 
-    <script>
-			var calendar = new tui.Calendar('#calendar', {
-				defaultView: 'month',
-				taskView: true,
-				template: {
-					monthDayname: function (dayname) {
-						return '<span class="calendar-week-dayname-name">' + dayname.label + '</span>';
-					}
-				}
-			});
+    var calendar = new tui.Calendar("#calendar", {
+      defaultView: "month",
+      month: {
+        workweek: false,
+      },
+      useCreationPopup: true,
+      useDetailPopup: true,
+      usageStatistics: true,
+      template: {
+        monthDayname: function (dayname) {
+          return (
+            '<span class="calendar-week-dayname-name">' +
+            dayname.label +
+            "</span>"
+          );
+        },
 
-			fetch('/api/calendar/list', {headers: {"Content-Type": "application/json; charset=utf-8"}})
-				.then(res => res.json())
-				.then(response => {
-					console.dir(response);
-					calendar.clear();
+        milestone: function (model) {
+          return (
+            '<span class="calendar-font-icon ic-milestone-b"></span> <span style="background-color: ' +
+            model.bgColor +
+            '">' +
+            model.title +
+            "</span>"
+          );
+        },
+      },
+      allday: function (schedule) {
+        return getTimeTemplate(schedule, true);
+      },
+      time: function (schedule) {
+        return getTimeTemplate(schedule, false);
+      },
 
-					// https://nhn.github.io/tui.calendar/latest/Schedule
-					let schedule = response;
+      // Options for daily, weekly view
+      week: {},
 
-					calendar.createSchedules(schedule, true);
-					calendar.render();
-				})
-				.catch(err => {
-					alert("Filed to retrieve calendar events")
-				});
-    </script>
+    });
+
+    fetch("/api/calendar/list", {
+      headers: { "Content-Type": "application/json; charset=utf-8" },
+    })
+      .then((res) => res.json())
+      .then((response) => {
+        console.dir(response);
+        calendar.clear();
+
+        // https://nhn.github.io/tui.calendar/latest/Schedule
+        let schedule = response;
+
+        calendar.createSchedules(schedule, true);
+        calendar.render();
+      })
+      .catch((err) => {
+        alert("Filed to retrieve calendar events");
+      });
+
+    calendar.on({
+      clickMore: function (e) {
+        console.log("clickMore", e);
+      },
+      clickSchedule: function (e) {
+        console.log("clickSchedule", e);
+      },
+      clickDayname: function (date) {
+        console.log("clickDayname", date);
+      },
+      beforeCreateSchedule: function (e) {
+        console.log("beforeCreateSchedule", e);
+      },
+      beforeUpdateSchedule: function (e) {
+        const { schedule, changes } = e;
+        console.log("beforeUpdateSchedule", e);
+        calendar.updateSchedule(schedule.id, schedule.calendarId, changes);
+      },
+      beforeDeleteSchedule: function (e) {
+        console.log("beforeDeleteSchedule", e);
+        calendar.deleteSchedule(e.schedule.id, e.schedule.calendarId);
+      },
+      afterRenderSchedule: function (e) {
+        const schedule = e.schedule;
+        // var element = calendar.getElement(schedule.id, schedule.calendarId);
+        // console.log('afterRenderSchedule', element);
+      },
+      clickTimezonesCollapseBtn: function (timezonesCollapsed) {
+        console.log("timezonesCollapsed", timezonesCollapsed);
+
+        if (timezonesCollapsed) {
+          calendar.setTheme({
+            "week.daygridLeft.width": "77px",
+            "week.timegridLeft.width": "77px",
+          });
+        } else {
+          calendar.setTheme({
+            "week.daygridLeft.width": "60px",
+            "week.timegridLeft.width": "60px",
+          });
+        }
+
+        return true;
+      },
+    });
+
+    prevBtn.addEventListener("click", (e) => {
+      calendar.prev();
+    });
+
+    nextBtn.addEventListener("click", (e) => {
+      calendar.next();
+    });
+
+    useWorkweek.addEventListener("change", (e) => {
+      calendar.setOptions({
+        month: {
+          workweek: e.currentTarget.checked,
+        },
+      });
+    });
+
+
+  </script>
 </html>
-

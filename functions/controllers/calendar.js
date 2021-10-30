@@ -64,13 +64,20 @@ router.get('/token/set', (req, res) => {
 
 		oAuth2Client.setCredentials(token);
 
-		calendarApi.storeToken(res, token, "get");
+		calendarApi.storeToken(  token, "get").then(
+			(result) => {
+				res.writeHead(302, {
+					'Location': '/calendar/connected'
+				});
+				res.end();
+			},
+			(error) => {
+				console.log(error);
 
-		res.writeHead(302, {
-			'Location': '/calendar/connected'
-		});
+				res.render('pages/error.ejs', {code: 500, message: error});
+			}
+		);
 
-		res.end();
 	});
 });
 
