@@ -5,23 +5,24 @@ const {google} = require("googleapis");
 const router = express.Router();
 const calendarApi = require("../model/calendar");
 
+
 router.get('/', (req, res) => {
-		calendarApi.authorizeAsync(env.googleCalendar.getCredentials())
-			.then((value) => {
-					// ** show it if authorized
-					res.render('pages/calendar.ejs')
-				},
-				(reason) => {
-					// ** redirect to authorize
-					res.render('pages/calendar-not-connected.ejs')
-				});
-	}
-);
+	calendarApi.authorizeAsync(env.googleCalendar.getCredentials())
+		.then((value) => {
+			// ** show it if authorized
+			res.render('pages/calendar.ejs')
+		},
+		(reason) => {
+			// ** redirect to authorize
+			res.render('pages/calendar-not-connected.ejs')
+		});
+});
+
 
 router.get('/connected', (req, res) => {
-		res.render('pages/calendar-connected.ejs');
-	}
-);
+	res.render('pages/calendar-connected.ejs');
+});
+
 
 router.get('/link', (req,res) => {
 	calendarApi.authorizeAsync(env.googleCalendar.getCredentials())

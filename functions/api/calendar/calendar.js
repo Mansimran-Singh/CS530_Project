@@ -12,18 +12,18 @@ router.get('/list', (req, res) => {
 router.post('/create', (req, res) => {
 	// _googleLoginAnd(insertEventAsync, (value) => res.json(value), (reason) => res.sendStatus(500))
 
-	const tz = req.body.tz ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
+	const tz = req.body.tz || Intl.DateTimeFormat().resolvedOptions().timeZone;
 	const start = moment().format();
 	const end = moment(start).add(30, 'minutes').format();
 
 	let params = {
 		sendUpdates: 'all',
-		colorId: req.body.colorId ?? null,
-		start: { dateTime: req.body.startTime ?? start, timeZone: tz, },
-		end: { dateTime: req.body.endTime ?? end, timeZone: tz, },
-		summary: req.body.summary ?? 'test',
-		description: req.body.description ?? 'test event',
-		category: req.body.category ?? 'Volunteer'
+		colorId: req.body.colorId || null,
+		start: { dateTime: req.body.startTime || start, timeZone: tz, },
+		end: { dateTime: req.body.endTime || end, timeZone: tz, },
+		summary: req.body.summary || 'test',
+		description: req.body.description || 'test event',
+		category: req.body.category || 'Volunteer'
 	};
 
 

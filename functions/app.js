@@ -65,6 +65,7 @@ app.get('/about', (req, res) => {
 app.get('/error', (req, res) => {
     throw new Error('barf?');
 });
+
 app.use(errorhandler); // has to be at the end of app.js for... reasons?
 
 

@@ -34,7 +34,7 @@ calendarApi.SCOPES = SCOPES;
 
 const tokenDBFieldName = 'googleCalendarApiToken';
 
-calendarApi.authorizeAsync =  async function authorizeAsync(credentials) {
+calendarApi.authorizeAsync = function authorizeAsync(credentials) {
   const {client_secret, client_id, redirect_uris} = credentials.installed;
   const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
 
@@ -63,7 +63,7 @@ calendarApi.authorizeAsync =  async function authorizeAsync(credentials) {
 /** @deprecated
  *
  * */
-calendarApi.getAccessTokenAsync = async function getAccessTokenAsync(oAuth2Client) {
+calendarApi.getAccessTokenAsync = function getAccessTokenAsync(oAuth2Client) {
   return new Promise((resolve, reject) => {
     const authUrl = oAuth2Client.generateAuthUrl({ access_type: 'offline', scope: SCOPES, });
 
@@ -102,7 +102,7 @@ calendarApi.getAccessTokenAsync = async function getAccessTokenAsync(oAuth2Clien
   });
 }
 
-calendarApi.listEventsAsync = async function listEventsAsync(oAuth2Client) {
+calendarApi.listEventsAsync = function listEventsAsync(oAuth2Client) {
   return new Promise((resolve, reject) => {
     const calendar = google.calendar({version: 'v3', auth: oAuth2Client});
     const params = {
@@ -173,8 +173,6 @@ calendarApi.listEventsAsync = async function listEventsAsync(oAuth2Client) {
             let n = dbEvents.filter(x => x.id === event.id)[0];
             if (n)
               event.notifications = n.notifications;
-            let c = event.notifications?.length ?? 0;
-            let a = c;
           }
           
 
@@ -185,7 +183,7 @@ calendarApi.listEventsAsync = async function listEventsAsync(oAuth2Client) {
   });
 }
 
-calendarApi.insertEventAsync = async function insertEventAsync(oAuth2Client, params) {
+calendarApi.insertEventAsync = function insertEventAsync(oAuth2Client, params) {
   return new Promise((resolve, reject) => {
     const calendar = google.calendar({version: 'v3', auth: oAuth2Client});
   
@@ -222,7 +220,7 @@ calendarApi.insertEventAsync = async function insertEventAsync(oAuth2Client, par
   });
 }
 
-calendarApi._googleLoginAnd = async function _googleLoginAnd(func, resolve, reject, params) {
+calendarApi._googleLoginAnd = function _googleLoginAnd(func, resolve, reject, params) {
   calendarApi.authorizeAsync(env.googleCalendar.getCredentials())
     .then((value) => {
       func(params != null ? params : value)
@@ -245,7 +243,7 @@ calendarApi._googleLoginAnd = async function _googleLoginAnd(func, resolve, reje
     });
 }
 
-calendarApi.storeToken = async function storeToken(token, type) {
+calendarApi.storeToken = function storeToken(token, type) {
 
   return new Promise((resolve, reject) => {
     db.client.connect((err, db) => {

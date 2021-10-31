@@ -4,6 +4,7 @@
             "name": "Launch Program",
             "program": "${workspaceFolder}/functions/app.js",
             "request": "launch",
+            "cwd": "${workspaceFolder}/functions",
             "skipFiles": [
                 "<node_internals>/**"
             ],
