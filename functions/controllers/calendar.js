@@ -4,18 +4,30 @@ const env = require("../env.js");
 const {google} = require("googleapis");
 const router = express.Router();
 const calendarApi = require("../model/calendar");
+const db = require("./../db");
 
 
 router.get('/', (req, res) => {
-	calendarApi.authorizeAsync(env.googleCalendar.getCredentials())
-		.then((value) => {
-			// ** show it if authorized
-			res.render('pages/calendar.ejs')
-		},
-		(reason) => {
-			// ** redirect to authorize
-			res.render('pages/calendar-not-connected.ejs')
-		});
+
+	db.client.connect((err, client) => {
+		if (err !== undefined) {
+			res.render('pages/error.ejs', {code: 500, message: "MongoDB Connection Failed, try again."});
+		}
+		else {
+			calendarApi.authorizeAsync(env.googleCalendar.getCredentials())
+				.then((value) => {
+						// ** show it if authorized
+						res.render('pages/calendar.ejs')
+					},
+					(reason) => {
+						// ** redirect to authorize
+						res.render('pages/calendar-not-connected.ejs')
+					});
+		}
+
+	});
+
+
 });
 
 

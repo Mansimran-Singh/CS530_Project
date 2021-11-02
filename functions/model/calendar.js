@@ -124,13 +124,16 @@ calendarApi.listEventsAsync = function listEventsAsync(oAuth2Client) {
       const events = res.data.items;
       let results = [];
       let ids = [];
-    
+			let isAllDay = false;
+
       if (events.length) {
         console.log('Upcoming events:');
         events.map((event, i) => {
           const start = event.start.dateTime || event.start.date;
           const end = event.end.dateTime || event.end.date;
           console.log(`${start} - ${event.id} - ${event.summary}`);
+
+					isAllDay = !!event.start.date;
 
           ids.push(event.id);
           results.push({
@@ -147,8 +150,9 @@ calendarApi.listEventsAsync = function listEventsAsync(oAuth2Client) {
             calendarId: env.googleCalendar.calendarId,
             title: event.summary,
             category: "time",
-            start: start,
-            end: end,
+            start: moment(start),
+            end: moment(end),
+            isAllDay: isAllDay
           });
         });
 
