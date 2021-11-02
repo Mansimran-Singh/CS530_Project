@@ -12,6 +12,8 @@
     "tests"
   ],
   "dependencies": {
-    "tui-calendar": "^1.15"
+    "tui-calendar": "^1.15",
+    "moment": "^2.29.1",
+    "moment-timezone": "^0.5.33"
   }
 }

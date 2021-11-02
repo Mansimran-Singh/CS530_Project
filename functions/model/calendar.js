@@ -130,10 +130,20 @@ calendarApi.listEventsAsync = function listEventsAsync(oAuth2Client) {
         console.log('Upcoming events:');
         events.map((event, i) => {
           const start = event.start.dateTime || event.start.date;
-          const end = event.end.dateTime || event.end.date;
+          let end = event.end.dateTime || event.end.date;
           console.log(`${start} - ${event.id} - ${event.summary}`);
 
 					isAllDay = !!event.start.date;
+
+          // ** hack
+          // fixing end time stretching into next day
+          // for example a one day GCal all-day event will be returned as
+          // starting on 2025-11-02 and
+          // ending on 2025-11-03, toast calendar would show it as a two day event
+          // *****
+          if(isAllDay){
+            end = moment(end).subtract(1, "days").format("YYYY-MM-DD");
+          }
 
           ids.push(event.id);
           results.push({
@@ -149,9 +159,9 @@ calendarApi.listEventsAsync = function listEventsAsync(oAuth2Client) {
             /* tui.Calendar required fields, see https://nhn.github.io/tui.calendar/latest/Schedule */
             calendarId: env.googleCalendar.calendarId,
             title: event.summary,
-            category: "time",
-            start: moment(start),
-            end: moment(end),
+            category: isAllDay ? "allday" : "time",
+            start: start,
+            end: end,
             isAllDay: isAllDay
           });
         });

@@ -2,3 +2,5 @@
 !bower_components/tui-code-snippet/dist/*
 !bower_components/tui-date-picker/dist/*
 !bower_components/tui-time-picker/dist/*
+!bower_components/moment/dist/*
+!bower_components/moment-timezone/moment-timezone.js
