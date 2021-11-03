@@ -62,6 +62,11 @@ app.get('/about', (req, res) => {
   }
 );
 
+app.get('/privacy', (req, res) => {
+      res.render('pages/privacy.ejs');
+  }
+);
+
 app.get('/error', (req, res) => {
     throw new Error('barf?');
 });
