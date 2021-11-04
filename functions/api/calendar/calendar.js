@@ -17,6 +17,17 @@ router.get('/list', (req, res) => {
 });
 
 // https://developers.google.com/calendar/api/v3/reference/events/insert
+// usage: http://localhost:5001/api/calendar/create
+// request body:
+	// {
+	// 	"tz": "America/New_York",
+	// 	"colorId": null,
+	// 	"startTime": "2021-10-25T16:30:00-04:00",
+	// 	"endTime": "2021-10-25T17:45:00-04:00",
+	// 	"summary": "CS530",
+	// 	"description": "Regular class time",
+	// 	"category": "Community"
+	// }
 router.post('/create', (req, res) => {
 	// _googleLoginAnd(insertEventAsync, (value) => res.json(value), (reason) => res.sendStatus(500))
 
@@ -109,19 +120,9 @@ router.delete('/delete/:id', (req, res) => {
 	calendarApi.authorizeAsync(env.googleCalendar.getCredentials())
 		.then(
 			(value) => {
-
-				let params = {
-					calendarId: env.googleCalendar.calendarId,
-					eventId: eventId,
-					// resource: {
-					// 	eventId: eventId,
-					// },
-				};
-
 				const calendar = google.calendar({version: 'v3', auth: value});
-				calendar.events.delete(params, (err, res1) => {
+				calendar.events.delete({ calendarId: env.googleCalendar.calendarId, eventId: eventId,}, (err, res1) => {
 					if (err) {
-
 						if (err.code === 410) {
 							res.status(err.code).send('event does not exist');
 						}
@@ -134,20 +135,25 @@ router.delete('/delete/:id', (req, res) => {
 					  res.json(res1.data);
 					  return;
 				});
-
-				
 			},
 			(reason) => {
 				calendarApi.getAccessTokenAsync(reason)
 					.then((value) => {
-
-
-						// TODO: finish
-						res.status(599).send('not implemented');
-
-
-
-
+						const calendar = google.calendar({version: 'v3', auth: value});
+						calendar.events.delete({ calendarId: env.googleCalendar.calendarId, eventId: eventId,}, (err, res1) => {
+							if (err) {
+								if (err.code === 410) {
+									res.status(err.code).send('event does not exist');
+								}
+		
+								console.error(err.stack);
+								reject(oAuth2Client);
+								return;
+							  }
+		
+							  res.json(res1.data);
+							  return;
+						});
 					},
 					(reason) => {
 						res.status(500).send('Unable to get Google authentication token');
