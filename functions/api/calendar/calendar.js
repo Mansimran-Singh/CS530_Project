@@ -163,9 +163,67 @@ router.delete('/delete/:id', (req, res) => {
 });
 
 // https://developers.google.com/calendar/api/v3/reference/events/delete
-router.post('/update/:id', (req, res) => {
+router.post('/update', (req, res) => {
 
-	res.status(599).send('not implemented');
+	const eventId = req.body.eventId;
+	const params = { 
+		calendarId: env.googleCalendar.calendarId, 
+		eventId: eventId,
+		resource: {}
+	};
+
+	if (req.body.colorId) params.resource.colorId = req.body.colorId;
+	if (req.body.startTime) params.resource.start = { dateTime: req.body.startTime, timeZone: req.body.tz || "America/New_York" };
+	if (req.body.endTime) params.resource.end = { dateTime: req.body.endTime, timeZone: req.body.tz || "America/New_York" };
+	if (req.body.summary) params.resource.summary = req.body.summary;
+	if (req.body.description) params.resource.description = req.body.description;
+	if (req.body.category) params.resource.category = req.body.category;
+
+	calendarApi.authorizeAsync(env.googleCalendar.getCredentials())
+		.then(
+			(value) => {
+				const calendar = google.calendar({version: 'v3', auth: value});
+				calendar.events.update(params, (err, res1) => {
+					if (err) {
+						if (err.code === 410) {
+							res.status(err.code).send('event does not exist');
+						}
+
+						console.error(err.stack);
+						reject(oAuth2Client);
+						return;
+					  }
+
+					  res.json(res1.data);
+					  return;
+				});
+			},
+			(reason) => {
+				calendarApi.getAccessTokenAsync(reason)
+					.then((value) => {
+						const calendar = google.calendar({version: 'v3', auth: value});
+						calendar.events.update(params, (err, res1) => {
+							if (err) {
+								if (err.code === 410) {
+									res.status(err.code).send('event does not exist');
+								}
+		
+								console.error(err.stack);
+								reject(oAuth2Client);
+								return;
+							  }
+		
+							  res.json(res1.data);
+							  return;
+						});
+					},
+					(reason) => {
+						res.status(500).send('Unable to get Google authentication token');
+					});
+		});
+
+
+	
 });
 
 
