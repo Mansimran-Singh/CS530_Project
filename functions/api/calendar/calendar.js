@@ -108,9 +108,59 @@ router.post('/create', (req, res) => {
 // });
 
 // https://developers.google.com/calendar/api/v3/reference/events/update
+// usage: http://localhost:5001/api/calendar/delete/3v54j0b5b8asnu5v8vmu6mjd3p
 router.delete('/delete/:id', (req, res) => {
 
-	res.status(599).send('not implemented');
+	const eventId = req.params.id;
+
+	calendarApi.authorizeAsync(env.googleCalendar.getCredentials())
+		.then(
+			(value) => {
+
+				let params = {
+					calendarId: env.googleCalendar.calendarId,
+					eventId: eventId,
+					// resource: {
+					// 	eventId: eventId,
+					// },
+				};
+
+				const calendar = google.calendar({version: 'v3', auth: value});
+				calendar.events.delete(params, (err, res1) => {
+					if (err) {
+
+						if (err.code === 410) {
+							res.status(err.code).send('event does not exist');
+						}
+
+						console.error(err.stack);
+						reject(oAuth2Client);
+						return;
+					  }
+
+					  res.json(res1.data);
+					  return;
+				});
+
+				
+			},
+			(reason) => {
+				calendarApi.getAccessTokenAsync(reason)
+					.then((value) => {
+
+
+						// TODO: finish
+						res.status(599).send('not implemented');
+
+
+
+
+					},
+					(reason) => {
+						res.status(500).send('Unable to get Google authentication token');
+					});
+		});
+
 });
 
 // https://developers.google.com/calendar/api/v3/reference/events/delete
