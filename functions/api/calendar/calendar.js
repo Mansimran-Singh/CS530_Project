@@ -163,6 +163,18 @@ router.delete('/delete/:id', (req, res) => {
 });
 
 // https://developers.google.com/calendar/api/v3/reference/events/delete
+// usage: http://localhost:5001/api/calendar/update
+// body:
+	// {
+	// 	"eventId": "ja3ac1m7aba7lf9cturv0gflug",
+	// 	"tz": "America/New_York",
+	// 	"colorId": null,
+	// 	"startTime": "2021-10-25T16:30:00-04:00",
+	// 	"endTime": "2021-10-25T17:45:00-04:00",
+	// 	"summary": "CS530",
+	// 	"description": "Regular class time",
+	// 	"category": "Community"
+	// }
 router.post('/update', (req, res) => {
 
 	const eventId = req.body.eventId;
