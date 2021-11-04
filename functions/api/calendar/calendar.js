@@ -59,53 +59,46 @@ router.post('/create', (req, res) => {
 });
 
 // https://developers.google.com/calendar/api/v3/reference/events/get
-// router.get('/get/:id', (req, res) => {
-// 	const eventId = req.params.id;
+// usage: http://localhost:5001/api/calendar/get/ja3ac1m7aba7lf9cturv0gflug
+router.get('/get/:id', (req, res) => {
+	const eventId = req.params.id;
 
-// 	calendarApi.authorizeAsync(env.googleCalendar.getCredentials())
-// 		.then(
-// 			(value) => {
+	calendarApi.authorizeAsync(env.googleCalendar.getCredentials())
+		.then(
+			(value) => {
+				const calendar = google.calendar({version: 'v3', auth: value});
+				calendar.events.get({ calendarId: env.googleCalendar.calendarId, eventId: eventId,}, (err, res1) => {
+					if (err) {
+						console.error(err.stack);
+						reject(oAuth2Client);
+						return;
+					  }
 
-// 				let params = {
-// 					calendarId: env.googleCalendar.calendarId,
-// 					resource: {
-// 						eventId: eventId,
-// 					},
-// 				};
+					  res.json(res1.data);
+					  return;
+				});
 
-// 				const calendar = google.calendar({version: 'v3', auth: value});
-// 				calendar.events.get(params, (err, res1) => {
-// 					if (err) {
-// 						console.error(err.stack);
-// 						reject(oAuth2Client);
-// 						return;
-// 					  }
-
-// 					  res.json(res1.data);
-// 					  return;
-// 				});
-
-				
-// 			},
-// 			(reason) => {
-// 				calendarApi.getAccessTokenAsync(reason)
-// 					.then((value) => {
-
-
-// 						// TODO: finish
-// 						res.status(599).send('not implemented');
-
-
-
-
-// 					},
-// 					(reason) => {
-// 						res.status(500).send('Unable to get Google authentication token');
-// 					});
-// 		});
-
-// 	// res.status(599).send('not implemented');
-// });
+			},
+			(reason) => {
+				calendarApi.getAccessTokenAsync(reason)
+					.then((value) => {
+						const calendar = google.calendar({version: 'v3', auth: value});
+						calendar.events.get({ calendarId: env.googleCalendar.calendarId, eventId: eventId,}, (err, res1) => {
+							if (err) {
+								console.error(err.stack);
+								reject(oAuth2Client);
+								return;
+							  }
+		
+							  res.json(res1.data);
+							  return;
+						});
+					},
+					(reason) => {
+						res.status(500).send('Unable to get Google authentication token');
+					});
+		});
+});
 
 // https://developers.google.com/calendar/api/v3/reference/events/update
 // usage: http://localhost:5001/api/calendar/delete/3v54j0b5b8asnu5v8vmu6mjd3p
