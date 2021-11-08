@@ -1,6 +1,10 @@
+bower_components/
 !bower_components/tui-calendar/dist/*
 !bower_components/tui-code-snippet/dist/*
 !bower_components/tui-date-picker/dist/*
 !bower_components/tui-time-picker/dist/*
 !bower_components/moment/dist/*
 !bower_components/moment-timezone/moment-timezone.js
+!bower_components/jquery/dist/*
+!bower_components/bootstrap/dist/js/bootstrap-bundle.min.js
+!bower_components/bootstrap/dist/css/bootstrap.min.js

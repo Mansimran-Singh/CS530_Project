@@ -33,13 +33,79 @@
 
         <div class="text-white mb-4 text-left">
           <button id="prevBtn" class="btn btn-sm btn-outline-primary">Prev</button>
+          <button id="todayBtn" class="btn btn-sm btn-outline-primary">Today</button>
           <button id="nextBtn" class="btn btn-sm btn-outline-primary">Next</button>
-          <label><input type="checkbox" id="useWorkweek" autocomplete="off" /> Hide Weekends</label>
+          <a class="btn btn-sm btn-primary mx-5" data-bs-toggle="modal" href="#event_notification_modal" role="button">Notify All</a>
+          <label class="float-end"><input type="checkbox" id="useWorkweek" autocomplete="off" /> Hide Weekends</label>
+
+          <span id="current_date" class="current_date"></span>
         </div>
 
         <div id="calendar" style="height: 800px"></div>
       </div>
     </section>
+
+
+
+    <div class="modal fade" id="event_modal" aria-hidden="true" aria-labelledby="eventModalLabel" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <form name="event_form" id="event_form" onsubmit="return false;">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="eventModalLabel">Event</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <input type="hidden" name="eventId" id="event_id" value="" />
+
+              <div class="form-floating mb-3">
+                <input type="text" class="form-control event_summary" id="event_summary" name="summary" value="" placeholder="" />
+                <label for="event_summary">Title</label>
+              </div>
+
+              <div class="form-floating mb-3">
+                <input type="text" class="form-control event_start" id="event_start" name="startTime" value="" placeholder=""/>
+                <label for="event_start">Event Start</label>
+              </div>
+
+              <div class="form-floating mb-3">
+                <input type="text" class="form-control event_end" id="event_end" name="endTime" value="" placeholder="" />
+                <label for="event_end">Event End</label>
+              </div>
+
+
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-outline-primary" data-bs-dismiss="modal">Cancel</button>
+              <button class="btn btn-warning" id="btn_event_save">Save</button>
+              <button class="btn btn-primary" data-bs-toggle="modal" data-bs-dismiss="modal" data-bs-target="#event_notification_modal" >Notify...</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+
+
+    <div class="modal fade" id="event_notification_modal" aria-hidden="true" aria-labelledby="eventNotificationModalLabel" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" >
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="eventNotificationModalLabel">Notification</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+
+          </div>
+          <div class="modal-footer justify-content-between">
+            <button class="btn btn-outline-primary" data-bs-target="#event_modal" data-bs-toggle="modal" data-bs-dismiss="modal">Cancel</button>
+            <button class="btn btn-primary" data-bs-target="#event_modal" data-bs-toggle="modal" data-bs-dismiss="modal">Send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
 
     <!-- Footer-->
     <%- include('../partials/footer') -%>
@@ -47,16 +113,83 @@
 
   <script>
     var prevBtn = document.getElementById("prevBtn");
+    var todayBtn = document.getElementById("todayBtn");
     var nextBtn = document.getElementById("nextBtn");
     var useWorkweek = document.getElementById("useWorkweek");
+
+    var modalOptions = {};
+    var eventModal = new bootstrap.Modal(document.getElementById('event_modal'), modalOptions);
+    var eventModalEl = document.getElementById('event_modal');
+    var eventIdEl = document.getElementById('event_id');
+    var btnSaveEl = document.getElementById('btn_event_save');
+
+    var eventSummary = eventModalEl.querySelector('.modal-body .event_summary')
+    var eventStart = eventModalEl.querySelector('.modal-body .event_start')
+    var eventEnd = eventModalEl.querySelector('.modal-body .event_end')
+
+    eventModalEl.addEventListener('show.bs.modal', function (event) {
+      console.log('show.bs.modal');
+
+      // ** get event
+      if(eventIdEl.value !== ''){
+        fetch("/api/calendar/get/" + eventIdEl.value , {
+          headers: { "Content-Type": "application/json; charset=utf-8" },
+        })
+        .then((res) => res.json())
+        .then((response) => {
+          console.log('event');
+          console.dir(response);
+
+          // ** update modal's contents
+          eventSummary.value = response.summary;
+          console.log(response.start.date);
+          console.log(moment(response.start.date || response.start.dateTime ).local().format());
+          eventStart.value = moment(response.start.date || response.start.dateTime).local().format();
+          eventEnd.value = moment(response.end.date || response.end.dateTime).local().format();
+        })
+        .catch((err) => {
+          console.dir(err);
+          alert("Filed to retrieve calendar event");
+        });
+      }
+      else{
+        // ** reset modal
+        resetModalValues();
+      }
+    });
+
+    eventModalEl.addEventListener('hidden.bs.modal', function (event) {
+      resetModalValues();
+    });
+
+    function resetModalValues(){
+      eventSummary.value = '';
+      eventStart.value = '';
+      eventEnd.value = '';
+    }
+
+    function updateEvent(){
+      var form = document.querySelector('#event_form');
+      var data = new FormData(form);
+      var req = new XMLHttpRequest();
+      console.dir(data);
+      req.open("POST", "/api/calendar/update");
+      req.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+      req.send( JSON.stringify( Object.fromEntries(data)) );
+    }
+
+    btnSaveEl.addEventListener('click', function(){
+      console.log('saving event');
+      updateEvent();
+    });
 
     var calendar = new tui.Calendar("#calendar", {
       defaultView: "month",
       month: {
         workweek: false,
       },
-      useCreationPopup: true,
-      useDetailPopup: true,
+      useCreationPopup: false, // ** using our own modal popup
+      useDetailPopup: false, // ** using our own modal popup
       usageStatistics: true,
       template: {
         monthDayname: function (dayname) {
@@ -113,12 +246,21 @@
       },
       clickSchedule: function (e) {
         console.log("clickSchedule", e);
+
+        eventIdEl.value = e.schedule.id;
+
+        eventModal.show();
+        console.log(e.schedule);
       },
       clickDayname: function (date) {
         console.log("clickDayname", date);
       },
       beforeCreateSchedule: function (e) {
         console.log("beforeCreateSchedule", e);
+        eventIdEl.value = '';
+        eventModal.show();
+
+        e.guide.clearGuideElement();
       },
       beforeUpdateSchedule: function (e) {
         const { schedule, changes } = e;
@@ -130,6 +272,7 @@
         calendar.deleteSchedule(e.schedule.id, e.schedule.calendarId);
       },
       afterRenderSchedule: function (e) {
+        console.log('afterRenderSchedule');
         const schedule = e.schedule;
         // var element = calendar.getElement(schedule.id, schedule.calendarId);
         // console.log('afterRenderSchedule', element);
@@ -157,6 +300,10 @@
       calendar.prev();
     });
 
+    todayBtn.addEventListener("click", (e) => {
+      calendar.today();
+    });
+
     nextBtn.addEventListener("click", (e) => {
       calendar.next();
     });
@@ -168,7 +315,6 @@
         },
       });
     });
-
 
   </script>
 </html>

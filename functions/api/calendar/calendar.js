@@ -6,6 +6,7 @@ const env = require("../../env.js");
 
 const {google} = require('googleapis');
 const { oauth2 } = require('googleapis/build/src/apis/oauth2');
+const {resolve} = require("path");
 
 
 router.use(express.json());
@@ -83,31 +84,14 @@ router.get('/get/:id', (req, res) => {
 						console.error(err.stack);
 						reject(oAuth2Client);
 						return;
-					  }
+					}
 
-					  res.json(res1.data);
-					  return;
+				  res.json(res1.data);
 				});
 
 			},
 			(reason) => {
-				calendarApi.getAccessTokenAsync(reason)
-					.then((value) => {
-						const calendar = google.calendar({version: 'v3', auth: value});
-						calendar.events.get({ calendarId: env.googleCalendar.calendarId, eventId: eventId,}, (err, res1) => {
-							if (err) {
-								console.error(err.stack);
-								reject(oAuth2Client);
-								return;
-							  }
-		
-							  res.json(res1.data);
-							  return;
-						});
-					},
-					(reason) => {
-						res.status(500).send('Unable to get Google authentication token');
-					});
+				res.status(401).send('request not authorized');
 		});
 });
 
@@ -137,27 +121,7 @@ router.delete('/delete/:id', (req, res) => {
 				});
 			},
 			(reason) => {
-				calendarApi.getAccessTokenAsync(reason)
-					.then((value) => {
-						const calendar = google.calendar({version: 'v3', auth: value});
-						calendar.events.delete({ calendarId: env.googleCalendar.calendarId, eventId: eventId,}, (err, res1) => {
-							if (err) {
-								if (err.code === 410) {
-									res.status(err.code).send('event does not exist');
-								}
-		
-								console.error(err.stack);
-								reject(oAuth2Client);
-								return;
-							  }
-		
-							  res.json(res1.data);
-							  return;
-						});
-					},
-					(reason) => {
-						res.status(500).send('Unable to get Google authentication token');
-					});
+				res.status(401).send('request not authorized'); return;
 		});
 
 });
@@ -202,40 +166,16 @@ router.post('/update', (req, res) => {
 						}
 
 						console.error(err.stack);
-						reject(oAuth2Client);
 						return;
-					  }
+					}
 
-					  res.json(res1.data);
-					  return;
+				  res.json(res1.data);
 				});
 			},
 			(reason) => {
-				calendarApi.getAccessTokenAsync(reason)
-					.then((value) => {
-						const calendar = google.calendar({version: 'v3', auth: value});
-						calendar.events.update(params, (err, res1) => {
-							if (err) {
-								if (err.code === 410) {
-									res.status(err.code).send('event does not exist');
-								}
-		
-								console.error(err.stack);
-								reject(oAuth2Client);
-								return;
-							  }
-		
-							  res.json(res1.data);
-							  return;
-						});
-					},
-					(reason) => {
-						res.status(500).send('Unable to get Google authentication token');
-					});
+				res.status(401).send('request not authorized'); return;
+
 		});
-
-
-	
 });
 
 
