@@ -117,7 +117,7 @@ calendarApi.listEventsAsync = function listEventsAsync(oAuth2Client) {
       if (err) {
         console.error('The API returned an error: ' + err);
         console.error(err.stack);
-        reject(oAuth2Client);
+        reject(err.message);
         return;
       }
     
@@ -172,14 +172,14 @@ calendarApi.listEventsAsync = function listEventsAsync(oAuth2Client) {
     
       db.client.connect((err, db) => {
         if (err) {
-          reject(oAuth2Client);
+          reject(err.message);
           return;
         }
 
         let dbo = db.db(env.databaseName);
         dbo.collection('message_history').find({'eventId': { $in: ids }}).toArray((err, dbEvents) => {
           if (err) {
-              reject(oAuth2Client);
+              reject(err.message);
               return;
           }
 
@@ -233,7 +233,14 @@ calendarApi.insertEventAsync = function insertEventAsync(oAuth2Client, params) {
     });
   });
 }
-
+/**
+ * @deprecated just use calendarApi.authorizeAsync()
+ * @param func
+ * @param resolve
+ * @param reject
+ * @param params
+ * @private
+ */
 calendarApi._googleLoginAnd = function _googleLoginAnd(func, resolve, reject, params) {
   calendarApi.authorizeAsync(env.googleCalendar.getCredentials())
     .then((value) => {

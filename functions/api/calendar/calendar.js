@@ -14,7 +14,17 @@ router.use(express.json());
 
 // https://developers.google.com/calendar/api/v3/reference/events/list
 router.get('/list', (req, res) => {
-	calendarApi._googleLoginAnd(calendarApi.listEventsAsync, (value) => res.json(value), (reason) => res.sendStatus(500))
+	calendarApi.authorizeAsync(env.googleCalendar.getCredentials())
+		.then((oAuthClient) => {
+			// ** authorized
+			calendarApi.listEventsAsync(oAuthClient).then(
+				(results) => {
+					res.json(results);
+				},
+				(err) => {
+					res.sendStatus(401);
+				});
+		});
 });
 
 // https://developers.google.com/calendar/api/v3/reference/events/insert
@@ -121,7 +131,7 @@ router.delete('/delete/:id', (req, res) => {
 				});
 			},
 			(reason) => {
-				res.status(401).send('request not authorized'); return;
+				res.status(401).send('request not authorized');
 		});
 
 });

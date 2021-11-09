@@ -35,7 +35,7 @@
           <button id="prevBtn" class="btn btn-sm btn-outline-primary">Prev</button>
           <button id="todayBtn" class="btn btn-sm btn-outline-primary">Today</button>
           <button id="nextBtn" class="btn btn-sm btn-outline-primary">Next</button>
-          <a class="btn btn-sm btn-primary mx-5" data-bs-toggle="modal" href="#event_notification_modal" role="button">Notify All</a>
+          <a class="btn btn-sm btn-primary mx-5" data-bs-toggle="modal" href="#event_notification_modal" role="button" id="btn_notify_all">Notify All</a>
           <label class="float-end"><input type="checkbox" id="useWorkweek" autocomplete="off" /> Hide Weekends</label>
 
           <span id="current_date" class="current_date"></span>
@@ -48,7 +48,7 @@
 
 
     <div class="modal fade" id="event_modal" aria-hidden="true" aria-labelledby="eventModalLabel" tabindex="-1">
-      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-dialog modal-lg modal-fullscreen-md-down modal-dialog-scrollable">
         <form name="event_form" id="event_form" onsubmit="return false;">
           <div class="modal-content">
             <div class="modal-header">
@@ -87,8 +87,8 @@
 
 
 
-    <div class="modal fade" id="event_notification_modal" aria-hidden="true" aria-labelledby="eventNotificationModalLabel" tabindex="-1">
-      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" >
+    <div class="modal fade-not" id="event_notification_modal" aria-hidden="true" aria-labelledby="eventNotificationModalLabel" tabindex="-1">
+      <div class="modal-dialog modal-sm modal-dialog-centered modal-dialog-scrollable" >
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="eventNotificationModalLabel">Notification</h5>
@@ -112,6 +112,10 @@
   </body>
 
   <script>
+
+    var vm = {notificationOnly: false};
+
+
     var prevBtn = document.getElementById("prevBtn");
     var todayBtn = document.getElementById("todayBtn");
     var nextBtn = document.getElementById("nextBtn");
@@ -122,6 +126,7 @@
     var eventModalEl = document.getElementById('event_modal');
     var eventIdEl = document.getElementById('event_id');
     var btnSaveEl = document.getElementById('btn_event_save');
+    var btnNotifyAllEl = document.getElementById('btn_notify_all');
 
     var eventSummary = eventModalEl.querySelector('.modal-body .event_summary')
     var eventStart = eventModalEl.querySelector('.modal-body .event_start')
@@ -135,7 +140,12 @@
         fetch("/api/calendar/get/" + eventIdEl.value , {
           headers: { "Content-Type": "application/json; charset=utf-8" },
         })
-        .then((res) => res.json())
+        .then((res) => {
+          if(res.ok) {
+            return res.json()
+          }
+          return res.text().then(text => {throw new Error(text)})
+        })
         .then((response) => {
           console.log('event');
           console.dir(response);
@@ -149,7 +159,7 @@
         })
         .catch((err) => {
           console.dir(err);
-          alert("Filed to retrieve calendar event");
+          alert(err.message);
         });
       }
       else{
@@ -161,6 +171,12 @@
     eventModalEl.addEventListener('hidden.bs.modal', function (event) {
       resetModalValues();
     });
+
+    btnNotifyAllEl.addEventListener('click', function(e){
+      console.log(vm.notificationOnly);
+      vm.notificationOnly = true;
+      console.log(vm.notificationOnly);
+    })
 
     function resetModalValues(){
       eventSummary.value = '';
@@ -225,7 +241,12 @@
     fetch("/api/calendar/list", {
       headers: { "Content-Type": "application/json; charset=utf-8" },
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if(res.ok) {
+          return res.json()
+        }
+        return res.text().then(text => {throw new Error(text)})
+      })
       .then((response) => {
         console.dir(response);
         calendar.clear();
@@ -237,6 +258,7 @@
         calendar.render();
       })
       .catch((err) => {
+        console.log(err);
         alert("Filed to retrieve calendar events");
       });
 
@@ -250,7 +272,6 @@
         eventIdEl.value = e.schedule.id;
 
         eventModal.show();
-        console.log(e.schedule);
       },
       clickDayname: function (date) {
         console.log("clickDayname", date);
