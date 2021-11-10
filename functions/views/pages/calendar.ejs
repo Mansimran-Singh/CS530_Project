@@ -59,8 +59,8 @@
               <input type="hidden" name="eventId" id="event_id" value="" />
 
               <div class="form-check mb-3">
-                <input type="checkbox" class="form-check-input event_allday" id="event_allday" name="allday" value="" placeholder="" />
-                <label for="event_allday" class="form-check-label">Is all-day</label>
+                <input type="checkbox" class="form-check-input event_is_allday" id="event_is_allday" name="is_allday" value="" placeholder="" autocomplete="off" />
+                <label for="event_is_allday" class="form-check-label">Is all-day</label>
               </div>
 
               <div class="form-floating mb-3">
@@ -159,6 +159,7 @@
     vm.eventStartTimeEl = vm.eventModalEl.querySelector('.modal-body .event_start_time')
     vm.eventEndDateEl = vm.eventModalEl.querySelector('.modal-body .event_end_date')
     vm.eventEndTimeEl = vm.eventModalEl.querySelector('.modal-body .event_end_time')
+    vm.eventIsAllDayEl = vm.eventModalEl.querySelector('.modal-body .event_is_allday')
 
 
     vm.notifyModal = new bootstrap.Modal(document.getElementById('event_notification_modal'), vm.modalOptions);
@@ -183,6 +184,10 @@
         .then((response) => {
           console.log('event');
           console.dir(response);
+
+          vm.isEventAllDay = !response.start.dateTime;
+
+          vm.makeEventAllDay(vm.isEventAllDay);
 
           // ** update modal's contents
           vm.eventSummaryEl.value = response.summary;
@@ -211,7 +216,33 @@
 
     vm.btnNotifyAllEl.addEventListener('click', function(e){
       vm.notificationOnly = true;
-    })
+    });
+
+    vm.eventIsAllDayEl.addEventListener('change', function(e){
+      console.log('all-day changed');
+      var checked = e.target.checked;
+      console.log(checked);
+
+      if(checked){
+        vm.makeEventAllDay(true);
+      }
+      else{
+        vm.makeEventAllDay(false);
+      }
+    });
+
+    vm.makeEventAllDay = function(isAllDay){
+      if(isAllDay){
+        vm.eventIsAllDayEl.checked = true;
+        vm.eventStartTimeEl.setAttribute('disabled', 'disabled');
+        vm.eventEndTimeEl.setAttribute('disabled', 'disabled');
+      }
+      else{
+        vm.eventIsAllDayEl.checked = false;
+        vm.eventStartTimeEl.removeAttribute('disabled');
+        vm.eventEndTimeEl.removeAttribute('disabled');
+      }
+    }
 
     vm.resetModalValues = function(){
       vm.eventSummaryEl.value = '';

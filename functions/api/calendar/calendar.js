@@ -151,8 +151,8 @@ router.delete('/delete/:id', (req, res) => {
 	// }
 router.post('/update', (req, res) => {
 
-	if(params.eventId !== null){
-		res.code(400).send('event id is missing');
+	if(req.body.eventId == null){
+		res.status(400).send('event id is missing');
 		return;
 	}
 
