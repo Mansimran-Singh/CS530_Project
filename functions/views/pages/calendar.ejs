@@ -58,27 +58,53 @@
             <div class="modal-body">
               <input type="hidden" name="eventId" id="event_id" value="" />
 
+              <div class="form-check mb-3">
+                <input type="checkbox" class="form-check-input event_allday" id="event_allday" name="allday" value="" placeholder="" />
+                <label for="event_allday" class="form-check-label">Is all-day</label>
+              </div>
+
               <div class="form-floating mb-3">
                 <input type="text" class="form-control event_summary" id="event_summary" name="summary" value="" placeholder="" />
                 <label for="event_summary">Title</label>
               </div>
 
-              <div class="form-floating mb-3">
-                <input type="text" class="form-control event_start" id="event_start" name="startTime" value="" placeholder=""/>
-                <label for="event_start">Event Start</label>
+              <div class="row">
+                <div class="col">
+                  <div class="form-floating mb-3">
+                    <input type="date" class="form-control event_start_date" id="event_start_date" name="startDate" value="" placeholder=""/>
+                    <label for="event_start_date">Event Start Date</label>
+                  </div>
+
+                </div>
+                <div class="col">
+                  <div class="form-floating mb-3">
+                    <input type="time" class="form-control event_start_time" id="event_start_time" name="startTime" value="" placeholder=""/>
+                    <label for="event_start_time">Event Start Time</label>
+                  </div>
+                </div>
               </div>
 
-              <div class="form-floating mb-3">
-                <input type="text" class="form-control event_end" id="event_end" name="endTime" value="" placeholder="" />
-                <label for="event_end">Event End</label>
+              
+              <div class="row">
+                <div class="col">
+                  <div class="form-floating mb-3">
+                    <input type="date" class="form-control event_end_date" id="event_end_date" name="endDate" value="" placeholder=""/>
+                    <label for="event_end_date">Event End Date</label>
+                  </div>
+
+                </div>
+                <div class="col">
+                  <div class="form-floating mb-3">
+                    <input type="time" class="form-control event_end_time" id="event_end_time" name="endTime" value="" placeholder=""/>
+                    <label for="event_end_time">Event End Time</label>
+                  </div>
+                </div>
               </div>
-
-
             </div>
             <div class="modal-footer">
               <button class="btn btn-outline-primary" data-bs-dismiss="modal">Cancel</button>
               <button class="btn btn-warning" id="btn_event_save">Save</button>
-              <button class="btn btn-primary" data-bs-toggle="modal" data-bs-dismiss="modal" data-bs-target="#event_notification_modal" >Notify...</button>
+              <button class="btn btn-primary" data-bs-target="#event_notification_modal" data-bs-toggle="modal" data-bs-dismiss="modal">Notify...</button>
             </div>
           </div>
         </form>
@@ -112,9 +138,7 @@
   </body>
 
   <script>
-
     var vm = {notificationOnly: false};
-
 
     var prevBtn = document.getElementById("prevBtn");
     var todayBtn = document.getElementById("todayBtn");
@@ -129,8 +153,16 @@
     var btnNotifyAllEl = document.getElementById('btn_notify_all');
 
     var eventSummary = eventModalEl.querySelector('.modal-body .event_summary')
-    var eventStart = eventModalEl.querySelector('.modal-body .event_start')
-    var eventEnd = eventModalEl.querySelector('.modal-body .event_end')
+    var eventStartDate = eventModalEl.querySelector('.modal-body .event_start_date')
+    var eventStartTime = eventModalEl.querySelector('.modal-body .event_start_time')
+    var eventEndDate = eventModalEl.querySelector('.modal-body .event_end_date')
+    var eventEndTime = eventModalEl.querySelector('.modal-body .event_end_time')
+
+
+    var notifyModal = new bootstrap.Modal(document.getElementById('event_notification_modal'), modalOptions);
+    var notifyModalEl = document.getElementById('event_notification_modal');
+
+    // var btnModalNotifySend = event
 
     eventModalEl.addEventListener('show.bs.modal', function (event) {
       console.log('show.bs.modal');
@@ -152,10 +184,13 @@
 
           // ** update modal's contents
           eventSummary.value = response.summary;
-          console.log(response.start.date);
-          console.log(moment(response.start.date || response.start.dateTime ).local().format());
-          eventStart.value = moment(response.start.date || response.start.dateTime).local().format();
-          eventEnd.value = moment(response.end.date || response.end.dateTime).local().format();
+          console.log(moment(response.start.date || response.start.dateTime).local().format("YYYY-MM-DD"));
+          console.log(moment(response.start.date || response.start.dateTime).local().format("H:mm:s"));
+
+          eventStartDate.value = moment(response.start.date || response.start.dateTime).local().format("YYYY-MM-DD");
+          eventStartTime.value = moment(response.start.date || response.start.dateTime).local().format("H:mm:s");
+          eventEndDate.value = moment(response.end.date || response.end.dateTime).local().format("YYYY-MM-DD");
+          eventEndTime.value = moment(response.end.date || response.end.dateTime).local().format("H:mm:s");
         })
         .catch((err) => {
           console.dir(err);
@@ -164,27 +199,27 @@
       }
       else{
         // ** reset modal
-        resetModalValues();
+        vm.resetModalValues();
       }
     });
 
     eventModalEl.addEventListener('hidden.bs.modal', function (event) {
-      resetModalValues();
+      vm.resetModalValues();
     });
 
     btnNotifyAllEl.addEventListener('click', function(e){
-      console.log(vm.notificationOnly);
       vm.notificationOnly = true;
-      console.log(vm.notificationOnly);
     })
 
-    function resetModalValues(){
+    vm.resetModalValues = function(){
       eventSummary.value = '';
-      eventStart.value = '';
-      eventEnd.value = '';
+      eventStartDate.value = '';
+      eventStartTime.value = '';
+      eventEndDate.value = '';
+      eventEndTime.value = '';
     }
 
-    function updateEvent(){
+    vm.updateEvent = function(){
       var form = document.querySelector('#event_form');
       var data = new FormData(form);
       var req = new XMLHttpRequest();
@@ -196,7 +231,7 @@
 
     btnSaveEl.addEventListener('click', function(){
       console.log('saving event');
-      updateEvent();
+      vm.updateEvent();
     });
 
     var calendar = new tui.Calendar("#calendar", {

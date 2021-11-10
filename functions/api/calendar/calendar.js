@@ -22,7 +22,7 @@ router.get('/list', (req, res) => {
 					res.json(results);
 				},
 				(err) => {
-					res.sendStatus(401);
+					res.status(401).send('not authorized');
 				});
 		});
 });
@@ -151,6 +151,11 @@ router.delete('/delete/:id', (req, res) => {
 	// }
 router.post('/update', (req, res) => {
 
+	if(params.eventId !== null){
+		res.code(400).send('event id is missing');
+		return;
+	}
+
 	const eventId = req.body.eventId;
 	const params = { 
 		calendarId: env.googleCalendar.calendarId, 
@@ -159,8 +164,17 @@ router.post('/update', (req, res) => {
 	};
 
 	if (req.body.colorId) params.resource.colorId = req.body.colorId;
-	if (req.body.startTime) params.resource.start = { dateTime: req.body.startTime, timeZone: req.body.tz || "America/New_York" };
-	if (req.body.endTime) params.resource.end = { dateTime: req.body.endTime, timeZone: req.body.tz || "America/New_York" };
+
+	if (req.body.startTime)
+	{ params.resource.start = { dateTime: moment(req.body.startDate + " " +  req.body.startTime).local().format(), timeZone: req.body.tz || "America/New_York" } }
+	else if(req.body.startDate)
+	{ params.resource.start = { date: req.body.startDate, timeZone: req.body.tz || "America/New_York" } }
+
+	if (req.body.endTime)
+	{ params.resource.end = { dateTime: moment(req.body.endDate + ' ' + req.body.endTime).local().format(), timeZone: req.body.tz || "America/New_York" } }
+	else if(req.body.endDate)
+	{ params.resource.end = { date: req.body.endDate, timeZone: req.body.tz || "America/New_York" } }
+
 	if (req.body.summary) params.resource.summary = req.body.summary;
 	if (req.body.description) params.resource.description = req.body.description;
 	if (req.body.category) params.resource.category = req.body.category;
@@ -173,9 +187,11 @@ router.post('/update', (req, res) => {
 					if (err) {
 						if (err.code === 410) {
 							res.status(err.code).send('event does not exist');
+							return;
 						}
 
 						console.error(err.stack);
+						res.status(err.code).send(err.message);
 						return;
 					}
 
@@ -183,8 +199,7 @@ router.post('/update', (req, res) => {
 				});
 			},
 			(reason) => {
-				res.status(401).send('request not authorized'); return;
-
+				res.status(401).send('request not authorized');
 		});
 });
 
