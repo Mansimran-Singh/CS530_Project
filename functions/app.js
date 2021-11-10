@@ -6,12 +6,10 @@ const path = require('path');
 const os = require('os');
 const engines = require('consolidate');
 
-
 // local modules
 const db = require('./db');
 const logger = require('./middleware/logger');
 const errorhandler = require('./middleware/errorhandler');
-
 
 // configuration
 const port = env.httpPort ? env.httpPort : 5002;
@@ -79,8 +77,6 @@ app.get('/privacy', (req, res) => {
 app.get('/error', (req, res) => {
     throw new Error('barf?');
 });
-
-
 
 
  // This has to be at the end of app.js for... reasons?
