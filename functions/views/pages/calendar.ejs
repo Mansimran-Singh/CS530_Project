@@ -185,12 +185,12 @@
           // ** update modal's contents
           eventSummary.value = response.summary;
           console.log(moment(response.start.date || response.start.dateTime).local().format("YYYY-MM-DD"));
-          console.log(moment(response.start.date || response.start.dateTime).local().format("H:mm:s"));
+          console.log(moment(response.start.date || response.start.dateTime).local().format("H:mm:ss"));
 
           eventStartDate.value = moment(response.start.date || response.start.dateTime).local().format("YYYY-MM-DD");
-          eventStartTime.value = moment(response.start.date || response.start.dateTime).local().format("H:mm:s");
+          eventStartTime.value = moment(response.start.date || response.start.dateTime).local().format("H:mm:ss");
           eventEndDate.value = moment(response.end.date || response.end.dateTime).local().format("YYYY-MM-DD");
-          eventEndTime.value = moment(response.end.date || response.end.dateTime).local().format("H:mm:s");
+          eventEndTime.value = moment(response.end.date || response.end.dateTime).local().format("H:mm:ss");
         })
         .catch((err) => {
           console.dir(err);
