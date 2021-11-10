@@ -7,7 +7,9 @@ const moment = require('moment');
 const os = require('os');
 
 
+// enable JSON serialization in requests
 router.use(express.json());
+
 
 // requests can be sent in one of two formats:
 //      http://localhost:5001/notify/previousByEvent?id=123,987
@@ -48,6 +50,7 @@ router.get('/previousByEvent/:id', (req, res) => {
     });
 });
 
+
 // requests can be sent in one of two formats:
 //      http://localhost:5001/notify/previousByCategory?category=Volunteer,All
 //      http://localhost:5001/notify/previousByCategory?category=Volunteer&category=All
@@ -87,10 +90,19 @@ router.get('/previousByCategory/:category?', (req, res) => {
 });
 
 
+// sent a notification to the users
+// http://localhost:5001/notify/send
+// request body:
+// {
+//     "eventid": "798aie9ik05fkg9repr6jcnfjc",
+//     "category": "Uncat",
+//     "title": "HI EVERYONE",
+//     "message": "Live during demo"
+// }
 router.post('/send', (req, res) => {
     const userInfo = os.userInfo();
 
-    // Dan, don't use ?? operator here.
+    // Dan, don't use ?? operator here. You keep making this mistake. GCLOUD isn't using ES6 for some ungodly reason.
     const eventId = req.body.eventid ? req.body.eventid : null;
     const category = req.body.category ? req.body.category : 'ALL';
     const title = req.body.title ? req.body.title : 'Spam Notification';
