@@ -140,36 +140,38 @@
   <script>
     var vm = {notificationOnly: false};
 
-    var prevBtn = document.getElementById("prevBtn");
-    var todayBtn = document.getElementById("todayBtn");
-    var nextBtn = document.getElementById("nextBtn");
-    var useWorkweek = document.getElementById("useWorkweek");
+    vm.prevBtn = document.getElementById("prevBtn");
+    vm.todayBtn = document.getElementById("todayBtn");
+    vm.nextBtn = document.getElementById("nextBtn");
+    vm.useWorkweek = document.getElementById("useWorkweek");
 
-    var modalOptions = {};
-    var eventModal = new bootstrap.Modal(document.getElementById('event_modal'), modalOptions);
-    var eventModalEl = document.getElementById('event_modal');
-    var eventIdEl = document.getElementById('event_id');
-    var btnSaveEl = document.getElementById('btn_event_save');
-    var btnNotifyAllEl = document.getElementById('btn_notify_all');
+    vm.modalOptions = {};
+    vm.eventModal = new bootstrap.Modal(document.getElementById('event_modal'), vm.modalOptions);
+    vm.eventModalEl = document.getElementById('event_modal');
+    vm.eventIdEl = document.getElementById('event_id');
+    vm.btnSaveEl = document.getElementById('btn_event_save');
+    vm.btnNotifyAllEl = document.getElementById('btn_notify_all');
 
-    var eventSummary = eventModalEl.querySelector('.modal-body .event_summary')
-    var eventStartDate = eventModalEl.querySelector('.modal-body .event_start_date')
-    var eventStartTime = eventModalEl.querySelector('.modal-body .event_start_time')
-    var eventEndDate = eventModalEl.querySelector('.modal-body .event_end_date')
-    var eventEndTime = eventModalEl.querySelector('.modal-body .event_end_time')
+    vm.eventFormEl = document.querySelector('#event_form');
+
+    vm.eventSummaryEl = vm.eventModalEl.querySelector('.modal-body .event_summary')
+    vm.eventStartDateEl = vm.eventModalEl.querySelector('.modal-body .event_start_date')
+    vm.eventStartTimeEl = vm.eventModalEl.querySelector('.modal-body .event_start_time')
+    vm.eventEndDateEl = vm.eventModalEl.querySelector('.modal-body .event_end_date')
+    vm.eventEndTimeEl = vm.eventModalEl.querySelector('.modal-body .event_end_time')
 
 
-    var notifyModal = new bootstrap.Modal(document.getElementById('event_notification_modal'), modalOptions);
-    var notifyModalEl = document.getElementById('event_notification_modal');
+    vm.notifyModal = new bootstrap.Modal(document.getElementById('event_notification_modal'), vm.modalOptions);
+    vm.notifyModalEl = document.getElementById('event_notification_modal');
 
     // var btnModalNotifySend = event
 
-    eventModalEl.addEventListener('show.bs.modal', function (event) {
+    vm.eventModalEl.addEventListener('show.bs.modal', function (event) {
       console.log('show.bs.modal');
 
       // ** get event
-      if(eventIdEl.value !== ''){
-        fetch("/api/calendar/get/" + eventIdEl.value , {
+      if(vm.eventIdEl.value !== ''){
+        fetch("/api/calendar/get/" + vm.eventIdEl.value , {
           headers: { "Content-Type": "application/json; charset=utf-8" },
         })
         .then((res) => {
@@ -183,14 +185,14 @@
           console.dir(response);
 
           // ** update modal's contents
-          eventSummary.value = response.summary;
+          vm.eventSummaryEl.value = response.summary;
           console.log(moment(response.start.date || response.start.dateTime).local().format("YYYY-MM-DD"));
           console.log(moment(response.start.date || response.start.dateTime).local().format("H:mm:ss"));
 
-          eventStartDate.value = moment(response.start.date || response.start.dateTime).local().format("YYYY-MM-DD");
-          eventStartTime.value = moment(response.start.date || response.start.dateTime).local().format("H:mm:ss");
-          eventEndDate.value = moment(response.end.date || response.end.dateTime).local().format("YYYY-MM-DD");
-          eventEndTime.value = moment(response.end.date || response.end.dateTime).local().format("H:mm:ss");
+          vm.eventStartDateEl.value = moment(response.start.date || response.start.dateTime).local().format("YYYY-MM-DD");
+          vm.eventStartTimeEl.value = moment(response.start.date || response.start.dateTime).local().format("H:mm:ss");
+          vm.eventEndDateEl.value = moment(response.end.date || response.end.dateTime).local().format("YYYY-MM-DD");
+          vm.eventEndTimeEl.value = moment(response.end.date || response.end.dateTime).local().format("H:mm:ss");
         })
         .catch((err) => {
           console.dir(err);
@@ -203,25 +205,24 @@
       }
     });
 
-    eventModalEl.addEventListener('hidden.bs.modal', function (event) {
+    vm.eventModalEl.addEventListener('hidden.bs.modal', function (event) {
       vm.resetModalValues();
     });
 
-    btnNotifyAllEl.addEventListener('click', function(e){
+    vm.btnNotifyAllEl.addEventListener('click', function(e){
       vm.notificationOnly = true;
     })
 
     vm.resetModalValues = function(){
-      eventSummary.value = '';
-      eventStartDate.value = '';
-      eventStartTime.value = '';
-      eventEndDate.value = '';
-      eventEndTime.value = '';
+      vm.eventSummaryEl.value = '';
+      vm.eventStartDateEl.value = '';
+      vm.eventStartTimeEl.value = '';
+      vm.eventEndDateEl.value = '';
+      vm.eventEndTimeEl.value = '';
     }
 
     vm.updateEvent = function(){
-      var form = document.querySelector('#event_form');
-      var data = new FormData(form);
+      var data = new FormData(vm.eventFormEl);
       var req = new XMLHttpRequest();
       console.dir(data);
       req.open("POST", "/api/calendar/update");
@@ -229,12 +230,12 @@
       req.send( JSON.stringify( Object.fromEntries(data)) );
     }
 
-    btnSaveEl.addEventListener('click', function(){
+    vm.btnSaveEl.addEventListener('click', function(){
       console.log('saving event');
       vm.updateEvent();
     });
 
-    var calendar = new tui.Calendar("#calendar", {
+    vm.calendar = new tui.Calendar("#calendar", {
       defaultView: "month",
       month: {
         workweek: false,
@@ -284,48 +285,48 @@
       })
       .then((response) => {
         console.dir(response);
-        calendar.clear();
+        vm.calendar.clear();
 
         // https://nhn.github.io/tui.calendar/latest/Schedule
         let schedule = response;
 
-        calendar.createSchedules(schedule, true);
-        calendar.render();
+        vm.calendar.createSchedules(schedule, true);
+        vm.calendar.render();
       })
       .catch((err) => {
         console.log(err);
         alert("Filed to retrieve calendar events");
       });
 
-    calendar.on({
+    vm.calendar.on({
       clickMore: function (e) {
         console.log("clickMore", e);
       },
       clickSchedule: function (e) {
         console.log("clickSchedule", e);
 
-        eventIdEl.value = e.schedule.id;
+        vm.eventIdEl.value = e.schedule.id;
 
-        eventModal.show();
+        vm.eventModal.show();
       },
       clickDayname: function (date) {
         console.log("clickDayname", date);
       },
       beforeCreateSchedule: function (e) {
         console.log("beforeCreateSchedule", e);
-        eventIdEl.value = '';
-        eventModal.show();
+        vm.eventIdEl.value = '';
+        vm.eventModal.show();
 
         e.guide.clearGuideElement();
       },
       beforeUpdateSchedule: function (e) {
         const { schedule, changes } = e;
         console.log("beforeUpdateSchedule", e);
-        calendar.updateSchedule(schedule.id, schedule.calendarId, changes);
+        vm.calendar.updateSchedule(schedule.id, schedule.calendarId, changes);
       },
       beforeDeleteSchedule: function (e) {
         console.log("beforeDeleteSchedule", e);
-        calendar.deleteSchedule(e.schedule.id, e.schedule.calendarId);
+        vm.calendar.deleteSchedule(e.schedule.id, e.schedule.calendarId);
       },
       afterRenderSchedule: function (e) {
         console.log('afterRenderSchedule');
@@ -337,12 +338,12 @@
         console.log("timezonesCollapsed", timezonesCollapsed);
 
         if (timezonesCollapsed) {
-          calendar.setTheme({
+          vm.calendar.setTheme({
             "week.daygridLeft.width": "77px",
             "week.timegridLeft.width": "77px",
           });
         } else {
-          calendar.setTheme({
+          vm.calendar.setTheme({
             "week.daygridLeft.width": "60px",
             "week.timegridLeft.width": "60px",
           });
@@ -352,20 +353,20 @@
       },
     });
 
-    prevBtn.addEventListener("click", (e) => {
-      calendar.prev();
+    vm.prevBtn.addEventListener("click", (e) => {
+      vm.calendar.prev();
     });
 
-    todayBtn.addEventListener("click", (e) => {
-      calendar.today();
+    vm.todayBtn.addEventListener("click", (e) => {
+      vm.calendar.today();
     });
 
-    nextBtn.addEventListener("click", (e) => {
-      calendar.next();
+    vm.nextBtn.addEventListener("click", (e) => {
+      vm.calendar.next();
     });
 
-    useWorkweek.addEventListener("change", (e) => {
-      calendar.setOptions({
+    vm.useWorkweek.addEventListener("change", (e) => {
+      vm.calendar.setOptions({
         month: {
           workweek: e.currentTarget.checked,
         },
