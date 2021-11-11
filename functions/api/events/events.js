@@ -52,6 +52,16 @@ router.post('/', (req, res) => {
 		category: req.body.category || 'Volunteer'
 	};
 
+	if (req.body.startTime)
+	{ params.start = { dateTime: moment(req.body.startDate + " " +  req.body.startTime).local().format(), timeZone: req.body.tz || "America/New_York" } }
+	else if(req.body.startDate)
+	{ params.start = { date: req.body.startDate, timeZone: req.body.tz || "America/New_York" } }
+
+	if (req.body.endTime)
+	{ params.end = { dateTime: moment(req.body.endDate + ' ' + req.body.endTime).local().format(), timeZone: req.body.tz || "America/New_York" } }
+	else if(req.body.endDate)
+	{ params.end = { date: req.body.endDate, timeZone: req.body.tz || "America/New_York" } }
+
 	calendarApi.authorizeAsync(env.googleCalendar.getCredentials())
 		.then(
 			(value) => {
@@ -104,7 +114,7 @@ router.delete('/:id', (req, res) => {
 		.then(
 			(value) => {
 				const calendar = google.calendar({version: 'v3', auth: value});
-				calendar.events.delete({ calendarId: env.googleCalendar.calendarId, eventId: eventId,}, (err, res1) => {
+				calendar.events.delete({ calendarId: env.googleCalendar.calendarId, eventId: eventId,}, (err, result) => {
 					if (err) {
 						if (err.code === 410) {
 							res.status(err.code).send('event does not exist');
@@ -115,7 +125,7 @@ router.delete('/:id', (req, res) => {
 						return;
 					}
 
-					res.json(res1.data);
+					res.json(result.data);
 					return;
 				});
 			},

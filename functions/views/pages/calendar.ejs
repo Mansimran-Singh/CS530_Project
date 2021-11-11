@@ -264,7 +264,7 @@
     vm.updateEvent = function(){
       var data = new FormData(vm.eventFormEl);
       var req = new XMLHttpRequest();
-      req.open("PUT", "/api/events/" + data.get('eventId'), false );
+      req.open(data.get('eventId') ? "PUT" : "POST", "/api/events/" + data.get('eventId'), false );
       req.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
       req.send( JSON.stringify( Object.fromEntries(data)) );
 
