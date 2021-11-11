@@ -140,6 +140,11 @@
   <script>
     var vm = {notificationOnly: false};
 
+    vm.broadcast = (eventName) => { dispatchEvent( new Event(eventName));}
+    vm.listen = (eventName, func) => { addEventListener(eventName, () => func() ) };
+
+    vm.loading = false;
+
     vm.prevBtn = document.getElementById("prevBtn");
     vm.todayBtn = document.getElementById("todayBtn");
     vm.nextBtn = document.getElementById("nextBtn");
@@ -172,7 +177,7 @@
 
       // ** get event
       if(vm.eventIdEl.value !== ''){
-        fetch("/api/calendar/get/" + vm.eventIdEl.value , {
+        fetch("/api/events/" + vm.eventIdEl.value , {
           headers: { "Content-Type": "application/json; charset=utf-8" },
         })
         .then((res) => {
@@ -256,7 +261,7 @@
       var data = new FormData(vm.eventFormEl);
       var req = new XMLHttpRequest();
       console.dir(data);
-      req.open("POST", "/api/calendar/update");
+      req.open("PUT", "/api/events/" + data.get('eventId') );
       req.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
       req.send( JSON.stringify( Object.fromEntries(data)) );
     }
@@ -305,6 +310,7 @@
 
     });
 
+    vm.broadcast('dataLoading');
     fetch("/api/calendar/list", {
       headers: { "Content-Type": "application/json; charset=utf-8" },
     })
@@ -327,7 +333,13 @@
       .catch((err) => {
         console.log(err);
         alert("Filed to retrieve calendar events");
+      })
+      .finally(() => {
+        vm.broadcast('dataLoaded');
       });
+
+    vm.listen('dataLoaded', function(){ vm.loading = false;});
+    vm.listen('dataLoading', function(){ vm.loading = true;});
 
     vm.calendar.on({
       clickMore: function (e) {

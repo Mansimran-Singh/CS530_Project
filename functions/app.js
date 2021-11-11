@@ -5,6 +5,7 @@ const app = express();
 const path = require('path');
 const os = require('os');
 const engines = require('consolidate');
+const bodyparser = require('body-parser')
 
 // local modules
 const db = require('./db');
@@ -42,6 +43,7 @@ app.get('/categories',  (req, res) => {
     res.redirect('/api/categories', 302);
 });
 app.use('/api/categories', require('./api/categories/categories'));
+app.use('/api/events', require('./api/events/events'));
 app.use('/api/calendar', require('./api/calendar/calendar'));
 app.use('/calendar', require('./controllers/calendar'));
 
