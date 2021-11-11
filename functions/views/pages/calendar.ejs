@@ -103,6 +103,7 @@
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-danger mx-auto" id="btn_event_delete" title="Delete">X</button>
               <button type="submit" class="btn btn-warning" id="btn_event_save">Save</button>
               <button type="button" class="btn btn-primary" data-bs-target="#event_notification_modal" data-bs-toggle="modal" data-bs-dismiss="modal">Notify...</button>
             </div>
@@ -155,6 +156,7 @@
     vm.eventModalEl = document.getElementById('event_modal');
     vm.eventIdEl = document.getElementById('event_id');
     vm.btnSaveEl = document.getElementById('btn_event_save');
+    vm.btnDeleteEl = document.getElementById('btn_event_delete');
     vm.btnNotifyAllEl = document.getElementById('btn_notify_all');
 
     vm.eventFormEl = document.querySelector('#event_form');
@@ -262,8 +264,8 @@
     }
 
     vm.updateEvent = function(){
-      var data = new FormData(vm.eventFormEl);
-      var req = new XMLHttpRequest();
+      let data = new FormData(vm.eventFormEl);
+      let req = new XMLHttpRequest();
       req.open(data.get('eventId') ? "PUT" : "POST", "/api/events/" + data.get('eventId'), false );
       req.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
       req.send( JSON.stringify( Object.fromEntries(data)) );
@@ -271,9 +273,34 @@
       vm.reloadEvents();
     }
 
+    vm.deleteEvent = function(){
+      let data = new FormData(vm.eventFormEl);
+
+      if(data.get('eventId')){
+        if(confirm('are you sure you want to delete this event?')){
+          let req = new XMLHttpRequest();
+          req.open("DELETE", "/api/events/" + data.get('eventId'), false );
+          req.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+          req.send( JSON.stringify( Object.fromEntries(data)) );
+
+          vm.reloadEvents();
+        }
+      }
+      else{
+        alert('no event, cannot delete');
+      }
+    }
+
     vm.btnSaveEl.addEventListener('click', function(e){
       console.log('saving event');
       vm.updateEvent();
+
+      vm.eventModal.hide();
+    });
+
+    vm.btnDeleteEl.addEventListener('click', function(e){
+      console.log('deleting event');
+      vm.deleteEvent();
 
       vm.eventModal.hide();
     });
