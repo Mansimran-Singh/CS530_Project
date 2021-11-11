@@ -102,9 +102,9 @@
               </div>
             </div>
             <div class="modal-footer">
-              <button class="btn btn-outline-primary" data-bs-dismiss="modal">Cancel</button>
-              <button class="btn btn-warning" id="btn_event_save">Save</button>
-              <button class="btn btn-primary" data-bs-target="#event_notification_modal" data-bs-toggle="modal" data-bs-dismiss="modal">Notify...</button>
+              <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-warning" id="btn_event_save">Save</button>
+              <button type="button" class="btn btn-primary" data-bs-target="#event_notification_modal" data-bs-toggle="modal" data-bs-dismiss="modal">Notify...</button>
             </div>
           </div>
         </form>
@@ -239,12 +239,16 @@
     vm.makeEventAllDay = function(isAllDay){
       if(isAllDay){
         vm.eventIsAllDayEl.checked = true;
+        vm.eventStartTimeEl.removeAttribute('required');
         vm.eventStartTimeEl.setAttribute('disabled', 'disabled');
+        vm.eventEndTimeEl.removeAttribute('required');
         vm.eventEndTimeEl.setAttribute('disabled', 'disabled');
       }
       else{
         vm.eventIsAllDayEl.checked = false;
+        vm.eventStartTimeEl.setAttribute('required', 'required');
         vm.eventStartTimeEl.removeAttribute('disabled');
+        vm.eventEndTimeEl.setAttribute('required', 'required');
         vm.eventEndTimeEl.removeAttribute('disabled');
       }
     }
@@ -260,14 +264,18 @@
     vm.updateEvent = function(){
       var data = new FormData(vm.eventFormEl);
       var req = new XMLHttpRequest();
-      req.open("PUT", "/api/events/" + data.get('eventId') );
+      req.open("PUT", "/api/events/" + data.get('eventId'), false );
       req.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
       req.send( JSON.stringify( Object.fromEntries(data)) );
+
+      vm.reloadEvents();
     }
 
-    vm.btnSaveEl.addEventListener('click', function(){
+    vm.btnSaveEl.addEventListener('click', function(e){
       console.log('saving event');
       vm.updateEvent();
+
+      vm.eventModal.hide();
     });
 
     vm.calendar = new tui.Calendar("#calendar", {
@@ -309,10 +317,10 @@
 
     });
 
-    vm.broadcast('dataLoading');
-    fetch("/api/events", {
-      headers: { "Content-Type": "application/json; charset=utf-8" },
-    })
+    vm.reloadEvents = function(){
+      fetch("/api/events", {
+        headers: { "Content-Type": "application/json; charset=utf-8", "Pragma": "no-cache", "Cache-Control": "no-cache" },
+      })
       .then((res) => {
         if(res.ok) {
           return res.json()
@@ -321,6 +329,7 @@
       })
       .then((response) => {
         console.dir(response);
+        console.log('clearing');
         vm.calendar.clear();
 
         // https://nhn.github.io/tui.calendar/latest/Schedule
@@ -336,6 +345,10 @@
       .finally(() => {
         vm.broadcast('dataLoaded');
       });
+    }
+
+    vm.broadcast('dataLoading');
+    vm.reloadEvents();
 
     vm.listen('dataLoaded', function(){ vm.loading = false;});
     vm.listen('dataLoading', function(){ vm.loading = true;});
