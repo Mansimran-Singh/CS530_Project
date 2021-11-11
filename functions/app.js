@@ -19,6 +19,9 @@ const port = env.httpPort ? env.httpPort : 5002;
 // middleware registration
 app.use(logger);
 
+app.use(bodyparser.urlencoded({extended:false}));
+app.use(bodyparser.json());
+
 
 /********************************************************************************************** */
 // main application
