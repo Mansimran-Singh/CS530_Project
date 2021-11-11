@@ -192,12 +192,12 @@
           // ** update modal's contents
           vm.eventSummaryEl.value = response.summary;
           console.log(moment(response.start.date || response.start.dateTime).local().format("YYYY-MM-DD"));
-          console.log(moment(response.start.date || response.start.dateTime).local().format("H:mm:ss"));
+          console.log(moment(response.start.date || response.start.dateTime).local().format("HH:mm:ss"));
 
           vm.eventStartDateEl.value = moment(response.start.date || response.start.dateTime).local().format("YYYY-MM-DD");
-          vm.eventStartTimeEl.value = moment(response.start.date || response.start.dateTime).local().format("H:mm:ss");
+          vm.eventStartTimeEl.value = !vm.isEventAllDay ? moment(response.start.date || response.start.dateTime).local().format("HH:mm:ss") : '';
           vm.eventEndDateEl.value = moment(response.end.date || response.end.dateTime).local().format("YYYY-MM-DD");
-          vm.eventEndTimeEl.value = moment(response.end.date || response.end.dateTime).local().format("H:mm:ss");
+          vm.eventEndTimeEl.value = !vm.isEventAllDay ? moment(response.end.date || response.end.dateTime).local().format("HH:mm:ss") : '';
         })
         .catch((err) => {
           console.dir(err);
