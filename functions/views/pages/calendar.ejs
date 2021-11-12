@@ -51,8 +51,8 @@
 
 
     <div class="modal fade" id="event_modal" aria-hidden="true" aria-labelledby="eventModalLabel" tabindex="-1">
-      <div class="modal-dialog modal-lg modal-fullscreen-md-down modal-dialog-scrollable">
-        <form name="event_form" id="event_form" onsubmit="return false;">
+      <div class="modal-dialog modal-lg modal-fullscreen-md-down modal-dialog-centered-not modal-dialog-scrollable">
+        <form name="event_form" id="event_form">
           <div class="modal-content">
             <div class="modal-header">
               <h5 class="modal-title" id="eventModalLabel">Event</h5>
@@ -74,7 +74,7 @@
               <div class="row">
                 <div class="col">
                   <div class="form-floating mb-3">
-                    <input type="date" class="form-control event_start_date" id="event_start_date" name="startDate" value="" placeholder=""/>
+                    <input type="date" class="form-control event_start_date" id="event_start_date" name="startDate" value="" placeholder="" required="required"/>
                     <label for="event_start_date">Event Start Date</label>
                   </div>
 
@@ -91,7 +91,7 @@
               <div class="row">
                 <div class="col">
                   <div class="form-floating mb-3">
-                    <input type="date" class="form-control event_end_date" id="event_end_date" name="endDate" value="" placeholder=""/>
+                    <input type="date" class="form-control event_end_date" id="event_end_date" name="endDate" value="" placeholder="" required="required" />
                     <label for="event_end_date">Event End Date</label>
                   </div>
 
@@ -118,7 +118,7 @@
 
 
     <div class="modal fade" id="event_notification_modal" aria-hidden="true" aria-labelledby="eventNotificationModalLabel" tabindex="-1">
-      <div class="modal-dialog modal-sm modal-dialog-centered modal-dialog-scrollable" >
+      <div class="modal-dialog modal-sm modal-dialog-centered-not modal-dialog-scrollable" >
 
         <div class="modal-body">
           <form name="event_form" id="notification_form" onsubmit="return false;">
@@ -236,6 +236,8 @@
       else{
         // ** reset modal
         vm.resetModalValues();
+
+        vm.makeEventAllDay(false);
       }
     });
 
@@ -273,6 +275,13 @@
         vm.makeEventAllDay(false);
       }
     });
+
+    vm.eventFormEl.addEventListener('submit', function(event){
+      console.log('submitting form, using ajax though');
+      event.preventDefault();
+
+      vm.updateEvent();
+    })
 
     vm.makeEventAllDay = function(isAllDay){
       if(isAllDay){
@@ -336,12 +345,12 @@
       req.send( JSON.stringify( Object.fromEntries(data)) );
     }
 
-    vm.btnSaveEl.addEventListener('click', function(e){
-      console.log('saving event');
-      vm.updateEvent();
-
-      vm.eventModal.hide();
-    });
+    // vm.btnSaveEl.addEventListener('click', function(e){
+    //   console.log('saving event');
+    //   vm.updateEvent();
+    //
+    //   vm.eventModal.hide();
+    // });
 
     vm.btnEventNotifyOpenEl.addEventListener('click', function(e){
       console.log('opening event notification modal');
