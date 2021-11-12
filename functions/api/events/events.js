@@ -165,12 +165,12 @@ router.put('/:id', (req, res) => {
 
 	if (req.body.colorId) params.resource.colorId = req.body.colorId;
 
-	if (req.body.startTime)
+	if (!req.body.is_allday == null)
 	{ params.resource.start = { dateTime: moment(req.body.startDate + " " +  req.body.startTime).local().format(), timeZone: req.body.tz || "America/New_York" } }
 	else if(req.body.startDate)
 	{ params.resource.start = { date: req.body.startDate, timeZone: req.body.tz || "America/New_York" } }
 
-	if (req.body.endTime)
+	if (!req.body.is_allday == null)
 	{ params.resource.end = { dateTime: moment(req.body.endDate + ' ' + req.body.endTime).local().format(), timeZone: req.body.tz || "America/New_York" } }
 	else if(req.body.endDate)
 	{ params.resource.end = { date: req.body.endDate, timeZone: req.body.tz || "America/New_York" } }

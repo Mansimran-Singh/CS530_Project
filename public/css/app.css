@@ -238,3 +238,15 @@ body {
 	padding-top: 10rem;
 	background: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.9) 75%, rgba(0, 0, 0, 0.8) 100%);
 }
+
+/* multiple modals open at once - visual fix
+https://stackoverflow.com/a/63473738/2631856
+*/
+.modal.fade {
+	background: rgba(0, 0, 0, 0.5);
+}
+
+.modal-backdrop.fade {
+	opacity: 0;
+}
+/**/
