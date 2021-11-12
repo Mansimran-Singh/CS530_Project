@@ -116,19 +116,35 @@
 
     <div class="modal fade-not" id="event_notification_modal" aria-hidden="true" aria-labelledby="eventNotificationModalLabel" tabindex="-1">
       <div class="modal-dialog modal-sm modal-dialog-centered modal-dialog-scrollable" >
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="eventNotificationModalLabel">Notification</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
 
-          </div>
-          <div class="modal-footer justify-content-between">
-            <button class="btn btn-outline-primary" data-bs-target="#event_modal" data-bs-toggle="modal" data-bs-dismiss="modal">Cancel</button>
-            <button class="btn btn-primary" data-bs-target="#event_modal" data-bs-toggle="modal" data-bs-dismiss="modal">Send</button>
-          </div>
-        </div>
+        <div class="modal-body">
+          <form name="event_form" id="notification_form" onsubmit="return false;">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="eventNotificationModalLabel">Notification</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <input type="hidden" name="eventId" id="event_id" value="" />
+
+                <div class="form-floating mb-3">
+                  <input type="text" class="form-control event_notification_title" id="event_notification_title" name="title" placeholder="" />
+                  <label for="event_notification_title">Title</label>
+                </div>
+
+                <div class="form-floating mb-3">
+                  <textarea type="text" class="form-control event_notification_message" id="event_notification_message" name="message" placeholder=""></textarea>
+                  <label for="event_notification_message">Message</label>
+                </div>
+              </div>
+              <div class="modal-footer justify-content-between">
+                <button class="btn btn-outline-primary" data-bs-target="#event_modal" data-bs-toggle="modal" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-primary" id="btn_notification_send" data-bs-toggle="modal" data-bs-dismiss="modal">Send</button>
+              </div>
+            </div>
+          </form>
+
+      </div>
       </div>
     </div>
 
@@ -156,10 +172,12 @@
     vm.eventModalEl = document.getElementById('event_modal');
     vm.eventIdEl = document.getElementById('event_id');
     vm.btnSaveEl = document.getElementById('btn_event_save');
+    vm.btnNotificationSendEl = document.getElementById('btn_notification_send');
     vm.btnDeleteEl = document.getElementById('btn_event_delete');
     vm.btnNotifyAllEl = document.getElementById('btn_notify_all');
 
     vm.eventFormEl = document.querySelector('#event_form');
+    vm.notificationFormEl = document.querySelector('#notification_form');
 
     vm.eventSummaryEl = vm.eventModalEl.querySelector('.modal-body .event_summary')
     vm.eventStartDateEl = vm.eventModalEl.querySelector('.modal-body .event_start_date')
@@ -291,6 +309,14 @@
       }
     }
 
+    vm.sendPushNotification = function(){
+      let data = new FormData(vm.notificationFormEl);
+      let req = new XMLHttpRequest();
+      req.open("POST", "/notify/send" /*+ data.get('eventId')*/, false );
+      req.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+      req.send( JSON.stringify( Object.fromEntries(data)) );
+    }
+
     vm.btnSaveEl.addEventListener('click', function(e){
       console.log('saving event');
       vm.updateEvent();
@@ -303,6 +329,13 @@
       vm.deleteEvent();
 
       vm.eventModal.hide();
+    });
+
+    vm.btnNotificationSendEl.addEventListener('click', function(e){
+      console.log('sending push notification');
+      vm.sendPushNotification();
+
+      // vm.eventModal.hide();
     });
 
     vm.calendar = new tui.Calendar("#calendar", {
