@@ -31,12 +31,15 @@
           </div>
         </div>
 
-        <div class="text-white mb-4 text-left">
-          <button id="prevBtn" class="btn btn-sm btn-outline-primary">Prev</button>
-          <button id="todayBtn" class="btn btn-sm btn-outline-primary">Today</button>
-          <button id="nextBtn" class="btn btn-sm btn-outline-primary">Next</button>
-          <a class="btn btn-sm btn-primary mx-5" data-bs-toggle="modal" href="#event_notification_modal" role="button" id="btn_notify_all">Notify All</a>
-          <label class="float-end"><input type="checkbox" id="useWorkweek" autocomplete="off" /> Hide Weekends</label>
+        <div class="btn-toolbar text-white mb-4 text-left">
+          <div class="me-auto">
+            <button id="prevBtn" class="btn btn-sm btn-outline-primary"><span class="d-none d-md-inline">Prev</span><span class="d-inline d-md-none"><</span></button>
+            <button id="todayBtn" class="btn btn-sm btn-outline-primary mx-1">Today</button>
+            <button id="nextBtn" class="btn btn-sm btn-outline-primary"><span class="d-none d-md-inline">Next</span><span class="d-inline d-md-none">></span></button>
+          </div>
+
+          <a class="btn btn-sm btn-primary mx-auto" data-bs-toggle="modal" href="#event_notification_modal" role="button" id="btn_notify_all">Notify All</a>
+          <label class="mx-auto"><input type="checkbox" id="useWorkweek" autocomplete="off" /> Hide Weekends</label>
 
           <span id="current_date" class="current_date"></span>
         </div>
