@@ -104,7 +104,7 @@ router.post('/send', (req, res) => {
 
     // Dan, don't use ?? operator here. You keep making this mistake. GCLOUD isn't using ES6 for some ungodly reason.
     const eventId = req.body.eventid ? req.body.eventid : null;
-    const category = req.body.category ? req.body.category : 'ALL';
+    const category = req.body.category ? req.body.category : 'Uncat';
     const title = req.body.title ? req.body.title : 'Spam Notification';
     const message = req.body.message ? req.body.message : null;
 
