@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const env = require('./../../env');
 const { MongoClient } = require("mongodb");
+const db = require('./../../db');
 
 const calendarApi = require("../../model/calendar");
 const moment = require("moment");
@@ -11,11 +12,40 @@ const {google} = require("googleapis");
 // https://developers.google.com/calendar/api/v3/reference/events/list
 // GET all
 router.get('/', (req, res) => {
+	let categories = req.params.category || req.query.category;
+	if (typeof categories === 'string' || categories instanceof String) {
+		categories = categories.split(',');
+	}
+
+	var mongoEvents = null;
+
+	if (categories) {
+		await db.client.connect();
+		mongoEvents = await db.client
+			.db(env.databaseName)
+			.collection('events')
+			.find({'category': {$in: categories}})
+			.project({
+				id: true,
+				category: true
+			})
+			.toArray();
+
+	}
+
 	calendarApi.authorizeAsync(env.googleCalendar.getCredentials())
 		.then((oAuthClient) => {
 			// ** authorized
 			calendarApi.listEventsAsync(oAuthClient).then(
 				(results) => {
+
+					// if we're filtering
+					if (categories) {
+						for (var r of results) {
+							r.category = mongoEvents.find(x => x.id == r.id)?.category;
+						}
+					}
+
 					res.json(results);
 				},
 				(err) => {

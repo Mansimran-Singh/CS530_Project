@@ -3,7 +3,6 @@ const router = express.Router();
 const calendarApi = require("../../model/calendar");
 const moment = require("moment");
 const env = require("../../env.js");
-const db = require('./../../db');
 
 const {google} = require('googleapis');
 const { oauth2 } = require('googleapis/build/src/apis/oauth2');
@@ -14,52 +13,8 @@ router.use(express.json());
 
 
 // https://developers.google.com/calendar/api/v3/reference/events/list
-// requests can be sent in one of the following formats:
-// 		http://localhost:5001/api/calendar/list
-// 		http://localhost:5001/api/calendar/list?category=Volunteer
-// 		http://localhost:5001/api/calendar/list?category=Volunteer,Community
-router.get('/list/:category?', async function (req, res) {
-
-	let categories = req.params.category || req.query.category;
-    if (typeof categories === 'string' || categories instanceof String) {
-        categories = categories.split(',');
-    }
-
-	var mongoEvents = null;
-
-	if (categories) {
-		await db.client.connect();
-		mongoEvents = await db.client
-			.db(env.databaseName)
-			.collection('events')
-			.find({'category': {$in: categories}})
-			.project({
-				id: true, 
-				category: true
-			})
-			.toArray();
-	
-	}
-
-	calendarApi.authorizeAsync(env.googleCalendar.getCredentials())
-		.then((oAuthClient) => {
-			// ** authorized
-			calendarApi.listEventsAsync(oAuthClient).then(
-				(results) => {
-					
-					// if we're filtering
-					if (categories) {
-						for (var r of results) {
-							r.category = mongoEvents.find(x => x.id == r.id)?.category;
-						}
-					}
-
-					res.json(results);
-				},
-				(err) => {
-					res.status(401).send('not authorized');
-				});
-		});
+router.get('/list', (req, res) => {
+	res.redirect(302, '/api/events' /*+ req.path*/);
 });
 
 // https://developers.google.com/calendar/api/v3/reference/events/insert
@@ -141,58 +96,8 @@ router.delete('/delete/:id', (req, res) => {
 	// 	"category": "Community"
 	// }
 router.post('/update', (req, res) => {
-	if (params.eventId !== null) {
-		res.code(400).send('event id is missing');
-		return;
-	}
 
-	const eventId = req.body.eventId;
-	const params = { 
-		calendarId: env.googleCalendar.calendarId, 
-		eventId: eventId,
-		resource: {}
-	};
-
-	if (req.body.colorId) params.resource.colorId = req.body.colorId;
-
-	if (req.body.startTime) { 
-		params.resource.start = { dateTime: moment(req.body.startDate + " " +  req.body.startTime).local().format(), timeZone: req.body.tz || "America/New_York" } 
-	} else if(req.body.startDate) { 
-		params.resource.start = { date: req.body.startDate, timeZone: req.body.tz || "America/New_York" } 
-	}
-
-	if (req.body.endTime) {
-		params.resource.end = { dateTime: moment(req.body.endDate + ' ' + req.body.endTime).local().format(), timeZone: req.body.tz || "America/New_York" }
-	} else if(req.body.endDate) { 
-		params.resource.end = { date: req.body.endDate, timeZone: req.body.tz || "America/New_York" } 
-	}
-
-	if (req.body.summary) params.resource.summary = req.body.summary;
-	if (req.body.description) params.resource.description = req.body.description;
-	if (req.body.category) params.resource.category = req.body.category;
-
-	calendarApi.authorizeAsync(env.googleCalendar.getCredentials())
-		.then(
-			(value) => {
-				const calendar = google.calendar({version: 'v3', auth: value});
-				calendar.events.update(params, (err, res1) => {
-					if (err) {
-						if (err.code === 410) {
-							res.status(err.code).send('event does not exist');
-							return;
-						}
-
-						console.error(err.stack);
-						res.status(err.code).send(err.message);
-						return;
-					}
-
-				  res.json(res1.data);
-				});
-			},
-			(reason) => {
-				res.status(401).send('request not authorized');
-		});
+	res.status(405).send('use PUT /api/events/:id');
 });
 
 
