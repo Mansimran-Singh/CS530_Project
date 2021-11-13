@@ -9,9 +9,12 @@ const moment = require("moment");
 const {google} = require("googleapis");
 
 
+
+
+
 // https://developers.google.com/calendar/api/v3/reference/events/list
 // GET all
-router.get('/', (req, res) => {
+router.get('/', async function (req, res) {
 	let categories = req.params.category || req.query.category;
 	if (typeof categories === 'string' || categories instanceof String) {
 		categories = categories.split(',');
