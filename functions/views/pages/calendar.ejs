@@ -128,7 +128,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <div class="modal-body">
-                <input type="hidden" name="eventId" id="event_id" value="" />
+                <input type="hidden" name="eventId" id="notify_event_id" value="" />
 
                 <div class="form-floating mb-3">
                   <input type="text" class="form-control event_notification_title" id="event_notification_title" name="title" placeholder="" required="required" />
@@ -190,9 +190,11 @@
     vm.eventEndTimeEl = vm.eventModalEl.querySelector('.modal-body .event_end_time')
     vm.eventIsAllDayEl = vm.eventModalEl.querySelector('.modal-body .event_is_allday')
 
-
-    vm.notifyModal = new bootstrap.Modal(document.getElementById('event_notification_modal'), vm.modalOptions);
     vm.notifyModalEl = document.getElementById('event_notification_modal');
+    vm.notifyModal = new bootstrap.Modal(vm.notifyModalEl, vm.modalOptions);
+    vm.notifyEventIdEl = vm.notifyModalEl.querySelector('.modal-body #notify_event_id');
+    vm.notifyTitleEl = vm.notifyModalEl.querySelector('.modal-body #event_notification_title');
+
 
     // var btnModalNotifySend = event
 
@@ -248,10 +250,11 @@
 
       // ** get event
       if(vm.eventIdEl.value !== ''){
-
+        // ** copy event id to notification modal
+        vm.notifyEventIdEl.value = vm.eventIdEl.value;
+        vm.notifyTitleEl.value = vm.eventSummaryEl.value;
       }
       else{
-
       }
     })
 
@@ -311,7 +314,7 @@
     }
 
     vm.resetModalValues = function(){
-      // vm.eventIdEl.value = '';
+      vm.eventIdEl.value = '';
       vm.eventSummaryEl.value = '';
       vm.eventStartDateEl.value = '';
       vm.eventStartTimeEl.value = '';
