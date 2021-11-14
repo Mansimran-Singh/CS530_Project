@@ -122,6 +122,16 @@ router.get('/:id', (req, res) => {
 						return;
 					}
 
+					// ** hack
+					// fixing end time stretching into next day
+					// for example a one day GCal all-day event will be returned as
+					// starting on 2025-11-02 and
+					// ending on 2025-11-03, toast calendar would show it as a two day event
+					// *****
+					if(remoteResult.data.end.date){
+						remoteResult.data.end.date = moment(remoteResult.data.end.date).subtract(1, "days").format("YYYY-MM-DD");
+					}
+
 					db.client.connect().then( client => {
 						db.client.db(env.databaseName).collection('events').findOne({id: remoteResult.data.id})
 							.then(
@@ -206,15 +216,24 @@ router.put('/:id', (req, res) => {
 
 	if (req.body.colorId) params.resource.colorId = req.body.colorId;
 
-	if (!req.body.is_allday == null)
+
+	/**
+	 * hack for google calendar
+	 * add 1 day to event end
+	 * we are doing the opposite on the front-end
+	 */
+	let endDate = moment(req.body.endDate).add(1, "days").format("YYYY-MM-DD");
+
+
+	if (req.body.is_allday === undefined)
 	{ params.resource.start = { dateTime: moment(req.body.startDate + " " +  req.body.startTime).local().format(), timeZone: req.body.tz || "America/New_York" } }
 	else if(req.body.startDate)
 	{ params.resource.start = { date: req.body.startDate, timeZone: req.body.tz || "America/New_York" } }
 
-	if (!req.body.is_allday == null)
+	if (req.body.is_allday === undefined)
 	{ params.resource.end = { dateTime: moment(req.body.endDate + ' ' + req.body.endTime).local().format(), timeZone: req.body.tz || "America/New_York" } }
 	else if(req.body.endDate)
-	{ params.resource.end = { date: req.body.endDate, timeZone: req.body.tz || "America/New_York" } }
+	{ params.resource.end = { date: endDate, timeZone: req.body.tz || "America/New_York" } }
 
 	if (req.body.summary) params.resource.summary = req.body.summary;
 	if (req.body.description) params.resource.description = req.body.description;
@@ -248,7 +267,8 @@ router.put('/:id', (req, res) => {
 						let dbo = db.db(env.databaseName);
 						dbo.collection('events').findOneAndReplace({id: result.data.id}, event, {"upsert": true}, (err, result) => {
 							if (err) {
-								res.status(400).send('failed to update local event');
+								// res.status(400).send('failed to update local event');
+								return;
 							}
 
 							db.close();

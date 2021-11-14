@@ -233,6 +233,9 @@
           console.log(moment(response.start.date || response.start.dateTime).local().format("YYYY-MM-DD"));
           console.log(moment(response.start.date || response.start.dateTime).local().format("HH:mm:ss"));
 
+          console.log(moment(response.end.date || response.end.dateTime).local().format("YYYY-MM-DD"));
+          console.log(moment(response.end.date || response.end.dateTime).local().format("HH:mm:ss"));
+
           vm.eventStartDateEl.value = moment(response.start.date || response.start.dateTime).local().format("YYYY-MM-DD");
           vm.eventStartTimeEl.value = !vm.isEventAllDay ? moment(response.start.date || response.start.dateTime).local().format("HH:mm:ss") : '';
           vm.eventEndDateEl.value = moment(response.end.date || response.end.dateTime).local().format("YYYY-MM-DD");
