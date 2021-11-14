@@ -67,7 +67,7 @@
               </div>
 
               <div class="form-floating mb-3">
-                <input type="text" class="form-control event_summary" id="event_summary" name="summary" value="" placeholder="" />
+                <input type="text" class="form-control event_summary" id="event_summary" name="summary" value="" placeholder="" required="required" />
                 <label for="event_summary">Title</label>
               </div>
 
@@ -121,7 +121,7 @@
       <div class="modal-dialog modal-sm modal-dialog-centered-not modal-dialog-scrollable" >
 
         <div class="modal-body">
-          <form name="event_form" id="notification_form" onsubmit="return false;">
+          <form name="event_form" id="notification_form">
             <div class="modal-content">
               <div class="modal-header">
                 <h5 class="modal-title" id="eventNotificationModalLabel">Notification</h5>
@@ -131,18 +131,18 @@
                 <input type="hidden" name="eventId" id="event_id" value="" />
 
                 <div class="form-floating mb-3">
-                  <input type="text" class="form-control event_notification_title" id="event_notification_title" name="title" placeholder="" />
+                  <input type="text" class="form-control event_notification_title" id="event_notification_title" name="title" placeholder="" required="required" />
                   <label for="event_notification_title">Title</label>
                 </div>
 
                 <div class="form-floating mb-3">
-                  <textarea type="text" class="form-control event_notification_message" id="event_notification_message" name="message" placeholder=""></textarea>
+                  <textarea type="text" class="form-control event_notification_message" id="event_notification_message" name="message" placeholder="" required="required"></textarea>
                   <label for="event_notification_message">Message</label>
                 </div>
               </div>
               <div class="modal-footer justify-content-between">
                 <button class="btn btn-outline-primary" data-bs-dismiss="modal">Cancel</button>
-                <button class="btn btn-primary" id="btn_notification_send" data-bs-toggle="modal" data-bs-dismiss="modal">Send</button>
+                <button class="btn btn-primary" id="btn_notification_send" type="submit">Send</button>
               </div>
             </div>
           </form>
@@ -281,7 +281,17 @@
       event.preventDefault();
 
       vm.updateEvent();
-    })
+
+      vm.eventModal.hide();
+    });
+
+    vm.notificationFormEl.addEventListener('submit', function(event){
+      console.log('sending push notification');
+      event.preventDefault();
+      vm.sendPushNotification();
+
+      vm.notifyModal.hide();
+    });
 
     vm.makeEventAllDay = function(isAllDay){
       if(isAllDay){
@@ -360,16 +370,10 @@
 
     vm.btnDeleteEl.addEventListener('click', function(e){
       console.log('deleting event');
+      e.preventDefault();
       vm.deleteEvent();
 
       vm.eventModal.hide();
-    });
-
-    vm.btnNotificationSendEl.addEventListener('click', function(e){
-      console.log('sending push notification');
-      vm.sendPushNotification();
-
-      // vm.eventModal.hide();
     });
 
     vm.calendar = new tui.Calendar("#calendar", {
