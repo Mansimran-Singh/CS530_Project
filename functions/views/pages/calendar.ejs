@@ -103,6 +103,16 @@
                   </div>
                 </div>
               </div>
+
+              <div class="form-floating mb-3">
+                <select class="form-control event_category" id="event_category" name="category" required="required">
+                  <option value="">Select</option>
+                  <% categories.forEach((el) =>
+                  { %><option value="<%= el.name %>" ><%= el.name %></option> <% } ); %>
+                </select>
+                <label for="event_category">Category</label>
+              </div>
+
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Cancel</button>
@@ -183,12 +193,13 @@
     vm.eventFormEl = document.querySelector('#event_form');
     vm.notificationFormEl = document.querySelector('#notification_form');
 
-    vm.eventSummaryEl = vm.eventModalEl.querySelector('.modal-body .event_summary')
-    vm.eventStartDateEl = vm.eventModalEl.querySelector('.modal-body .event_start_date')
-    vm.eventStartTimeEl = vm.eventModalEl.querySelector('.modal-body .event_start_time')
-    vm.eventEndDateEl = vm.eventModalEl.querySelector('.modal-body .event_end_date')
-    vm.eventEndTimeEl = vm.eventModalEl.querySelector('.modal-body .event_end_time')
-    vm.eventIsAllDayEl = vm.eventModalEl.querySelector('.modal-body .event_is_allday')
+    vm.eventSummaryEl = vm.eventModalEl.querySelector('.modal-body .event_summary');
+    vm.eventStartDateEl = vm.eventModalEl.querySelector('.modal-body .event_start_date');
+    vm.eventStartTimeEl = vm.eventModalEl.querySelector('.modal-body .event_start_time');
+    vm.eventEndDateEl = vm.eventModalEl.querySelector('.modal-body .event_end_date');
+    vm.eventEndTimeEl = vm.eventModalEl.querySelector('.modal-body .event_end_time');
+    vm.eventIsAllDayEl = vm.eventModalEl.querySelector('.modal-body .event_is_allday');
+    vm.eventCategoryEl = vm.eventModalEl.querySelector('.modal-body #event_category');
 
     vm.notifyModalEl = document.getElementById('event_notification_modal');
     vm.notifyModal = new bootstrap.Modal(vm.notifyModalEl, vm.modalOptions);
@@ -226,6 +237,8 @@
           vm.eventStartTimeEl.value = !vm.isEventAllDay ? moment(response.start.date || response.start.dateTime).local().format("HH:mm:ss") : '';
           vm.eventEndDateEl.value = moment(response.end.date || response.end.dateTime).local().format("YYYY-MM-DD");
           vm.eventEndTimeEl.value = !vm.isEventAllDay ? moment(response.end.date || response.end.dateTime).local().format("HH:mm:ss") : '';
+          console.log(response.eventCategory);
+          vm.eventCategoryEl.value = response.eventCategory ? response.eventCategory : '';
         })
         .catch((err) => {
           console.dir(err);
@@ -317,6 +330,7 @@
       vm.eventStartTimeEl.value = '';
       vm.eventEndDateEl.value = '';
       vm.eventEndTimeEl.value = '';
+      vm.eventCategoryEl.value = '';
     }
 
     vm.updateEvent = function(){

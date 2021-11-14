@@ -14,20 +14,28 @@ router.get('/', (req, res) => {
 			res.render('pages/error.ejs', {code: 500, message: "MongoDB Connection Failed, try again."});
 		}
 		else {
-			calendarApi.authorizeAsync(env.googleCalendar.getCredentials())
+			let dbo = client.db(env.databaseName);
+			dbo.collection('categories').find({}).toArray((err, result) => {
+				if (err) {
+					res.render('pages/error.ejs', {code: 500, message: "Failed to retrieve categories."});
+					return;
+				}
+				client.close();
+
+				let categories = result;
+
+				calendarApi.authorizeAsync(env.googleCalendar.getCredentials())
 				.then((value) => {
 						// ** show it if authorized
-						res.render('pages/calendar.ejs')
+						res.render('pages/calendar.ejs', {categories: categories});
 					},
 					(reason) => {
 						// ** redirect to authorize
 						res.render('pages/calendar-not-connected.ejs')
 					});
+			});
 		}
-
 	});
-
-
 });
 
 

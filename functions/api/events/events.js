@@ -41,7 +41,7 @@ router.get('/', async function (req, res) {
 					// if we're filtering
 					if (categories) {
 						for (var r of results) {
-							r.category = mongoEvents.find(x => x.id == r.id)?.category;
+							r.eventCategory = mongoEvents.find(x => x.id == r.id)?.category;
 						}
 					}
 
@@ -97,7 +97,7 @@ router.post('/', (req, res) => {
 				calendarApi.insertEventAsync(value, params)
 					.then(
 						(value) => { res.json(value); },
-						(reason) => { res.sendStatus(500); }
+						(reason) => { res.status(500).send(reason); }
 					);
 			},
 			(reason) => {
@@ -115,16 +115,30 @@ router.get('/:id', (req, res) => {
 		.then(
 			(value) => {
 				const calendar = google.calendar({version: 'v3', auth: value});
-				calendar.events.get({ calendarId: env.googleCalendar.calendarId, eventId: eventId,}, (err, results) => {
+				calendar.events.get({ calendarId: env.googleCalendar.calendarId, eventId: eventId,}, (err, remoteResult) => {
 					if (err) {
 						console.error(err.stack);
 						reject(oAuth2Client);
 						return;
 					}
 
-					res.json(results.data);
-				});
+					db.client.connect().then( client => {
+						db.client.db(env.databaseName).collection('events').findOne({id: remoteResult.data.id})
+							.then(
+								localResult => {
+									if(localResult){
+										remoteResult.data.eventCategory = localResult.category;
+									}
+									res.json(remoteResult.data);
+								},
+									err => {
+									res.status(500).send('failed to retrieve local data');
+								});
 
+					}, err => {
+						res.status(500).send('failed to connect to db');
+					})
+				});
 			},
 			(reason) => {
 				res.status(401).send('request not authorized');
@@ -154,7 +168,6 @@ router.delete('/:id', (req, res) => {
 					}
 
 					res.json(result.data);
-					return;
 				});
 			},
 			(reason) => {
@@ -211,7 +224,7 @@ router.put('/:id', (req, res) => {
 		.then(
 			(value) => {
 				const calendar = google.calendar({version: 'v3', auth: value});
-				calendar.events.update(params, (err, res1) => {
+				calendar.events.update(params, (err, result) => {
 					if (err) {
 						if (err.code === 410) {
 							res.status(err.code).send('event does not exist');
@@ -223,7 +236,26 @@ router.put('/:id', (req, res) => {
 						return;
 					}
 
-					res.json(res1.data);
+					let event = result.data;
+					event.category = params.resource.category;
+
+					db.client.connect((err, db) => {
+						if (err) {
+							res.status(400).send('failed to connect to db');
+							return;
+						}
+
+						let dbo = db.db(env.databaseName);
+						dbo.collection('events').findOneAndReplace({id: result.data.id}, event, {"upsert": true}, (err, result) => {
+							if (err) {
+								res.status(400).send('failed to update local event');
+							}
+
+							db.close();
+						});
+					});
+
+					res.json(result.data);
 				});
 			},
 			(reason) => {

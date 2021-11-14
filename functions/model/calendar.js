@@ -155,6 +155,7 @@ calendarApi.listEventsAsync = function listEventsAsync(oAuth2Client) {
             htmlLink: event.htmlLink,
             event: event,
             notifications: [],
+            eventCategory: event.category,
 
             /* tui.Calendar required fields, see https://nhn.github.io/tui.calendar/latest/Schedule */
             calendarId: env.googleCalendar.calendarId,
