@@ -464,7 +464,14 @@
       beforeCreateSchedule: function (e) {
         console.log("beforeCreateSchedule", e);
         vm.eventIdEl.value = '';
+
         vm.eventModal.show();
+
+        vm.eventStartDateEl.value = moment( new Date(e.start) ).local().format("YYYY-MM-DD");
+        vm.eventStartTimeEl.value = moment( new Date(e.start) ).local().format("HH:mm:ss");
+
+        vm.eventEndDateEl.value = moment( new Date(e.end) ).local().format("YYYY-MM-DD");
+        vm.eventEndTimeEl.value = moment( new Date(e.end) ).local().format("HH:mm:ss");
 
         e.guide.clearGuideElement();
       },
