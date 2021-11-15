@@ -261,7 +261,7 @@
           vm.eventEndDateEl.value = moment(response.end.date || response.end.dateTime).local().format("YYYY-MM-DD");
           vm.eventEndTimeEl.value = !vm.isEventAllDay ? moment(response.end.date || response.end.dateTime).local().format("HH:mm:ss") : '';
           console.log(response.eventCategory);
-          vm.eventCategoryEl.value = response.eventCategory ? response.eventCategory : '';
+          vm.eventCategoryEl.value = response.eventCategory ? response.eventCategory : 'Uncat';
         })
         .catch((err) => {
           console.dir(err);
@@ -353,7 +353,7 @@
       vm.eventStartTimeEl.value = '';
       vm.eventEndDateEl.value = '';
       vm.eventEndTimeEl.value = '';
-      vm.eventCategoryEl.value = '';
+      vm.eventCategoryEl.value = 'Uncat';
     }
 
     vm.updateEvent = function(){
