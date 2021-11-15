@@ -59,6 +59,7 @@ router.get('/', async function (req, res) {
 // request body:
 // {
 // 	"tz": "America/New_York",
+// 	"is_allday": "",  // unset for false
 // 	"eventId":"",
 // 	"summary":"test",
 // 	"startDate":"2021-11-03",
@@ -104,8 +105,12 @@ router.post('/', (req, res) => {
 		}
 	}
 	else if(req.body.endDate) {
+
 		params.end = {
-			date: req.body.endDate,
+			// ** hack for GCal
+			// fixing end time being 1 day short
+			// *****
+			date: moment(req.body.endDate).add(1, "days").format("YYYY-MM-DD"),
 			timeZone: req.body.tz || "America/New_York"
 		}
 	}
