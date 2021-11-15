@@ -99,6 +99,7 @@ router.get('/previousByCategory/:category?', (req, res) => {
 //     "title": "HI EVERYONE",
 //     "message": "Live during demo"
 // }
+
 router.post('/send', (req, res) => {
     const userInfo = os.userInfo();
 
@@ -121,7 +122,10 @@ router.post('/send', (req, res) => {
             body: message,
         },
         data: {
-            eventId: eventId
+            eventId: eventId,
+            title: title,
+            body: message,
+            category: category,
         }
     };
 

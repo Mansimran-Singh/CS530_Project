@@ -7,6 +7,7 @@ const db = require('./../../db');
 const calendarApi = require("../../model/calendar");
 const moment = require("moment");
 const {google} = require("googleapis");
+const axios = require('axios');
 
 
 // https://developers.google.com/calendar/api/v3/reference/events/list
@@ -66,7 +67,7 @@ router.get('/', async function (req, res) {
 // 	"category": "Community"
 // }
 // CREATE
-router.post('/', (req, res) => {
+router.post('/create', (req, res) => {
 	const tz = req.body.tz || Intl.DateTimeFormat().resolvedOptions().timeZone;
 	const start = moment().format();
 	const end = moment(start).add(30, 'minutes').format();
@@ -81,22 +82,56 @@ router.post('/', (req, res) => {
 		category: req.body.category || 'Volunteer'
 	};
 
-	if (req.body.startTime)
-	{ params.start = { dateTime: moment(req.body.startDate + " " +  req.body.startTime).local().format(), timeZone: req.body.tz || "America/New_York" } }
-	else if(req.body.startDate)
-	{ params.start = { date: req.body.startDate, timeZone: req.body.tz || "America/New_York" } }
+	// this causes errors with moment in date formats. why was this added and is it necessary? -- DAC
+	// if (req.body.startTime) { 
+	// 	params.start = { 
+	// 		dateTime: moment(req.body.startDate + " " +  req.body.startTime).local().format(), 
+	// 		timeZone: req.body.tz || "America/New_York" 
+	// 	} 
+	// }
+	// else if(req.body.startDate) { 
+	// 	params.start = { 
+	// 		date: req.body.startDate, 
+	// 		timeZone: req.body.tz || "America/New_York" } 
+	// }
 
-	if (req.body.endTime)
-	{ params.end = { dateTime: moment(req.body.endDate + ' ' + req.body.endTime).local().format(), timeZone: req.body.tz || "America/New_York" } }
-	else if(req.body.endDate)
-	{ params.end = { date: req.body.endDate, timeZone: req.body.tz || "America/New_York" } }
+	// if (req.body.endTime) { 
+	// 	params.end = { 
+	// 		dateTime: moment(req.body.endDate + ' ' + req.body.endTime).local().format(), 
+	// 		timeZone: req.body.tz || "America/New_York" 
+	// 	} 
+	// }
+	// else if(req.body.endDate) { 
+	// 	params.end = { 
+	// 		date: req.body.endDate, 
+	// 		timeZone: req.body.tz || "America/New_York" 
+	// 	} 
+	// }
+
 
 	calendarApi.authorizeAsync(env.googleCalendar.getCredentials())
 		.then(
 			(value) => {
 				calendarApi.insertEventAsync(value, params)
 					.then(
-						(value) => { res.json(value); },
+						(value) => { 
+
+							let data = {
+								"eventid": null, //value.eventId,
+								"category": params.category,
+								"title": "New event created",
+								"message": params.summary
+							};
+							let url = `${req.protocol}://${req.get('host')}/notify/send`;
+						
+							axios.post(url, data)
+								.then((res) => {
+									res.json(value);
+								})
+								.catch((err) => {
+									res.json(value);
+								});
+						},
 						(reason) => { res.status(500).send(reason); }
 					);
 			},
