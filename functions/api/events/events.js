@@ -59,15 +59,16 @@ router.get('/', async function (req, res) {
 // request body:
 // {
 // 	"tz": "America/New_York",
-// 	"colorId": null,
-// 	"startTime": "2021-10-25T16:30:00-04:00",
-// 	"endTime": "2021-10-25T17:45:00-04:00",
-// 	"summary": "CS530",
-// 	"description": "Regular class time",
-// 	"category": "Community"
+// 	"eventId":"",
+// 	"summary":"test",
+// 	"startDate":"2021-11-03",
+// 	"startTime":"09:30:00",
+// 	"endDate":"2021-11-03",
+// 	"endTime":"10:30:00",
+// 	"category":"Volunteer"
 // }
 // CREATE
-router.post('/create', (req, res) => {
+router.post('/', (req, res) => {
 	const tz = req.body.tz || Intl.DateTimeFormat().resolvedOptions().timeZone;
 	const start = moment().format();
 	const end = moment(start).add(30, 'minutes').format();
@@ -83,30 +84,31 @@ router.post('/create', (req, res) => {
 	};
 
 	// this causes errors with moment in date formats. why was this added and is it necessary? -- DAC
-	// if (req.body.startTime) { 
-	// 	params.start = { 
-	// 		dateTime: moment(req.body.startDate + " " +  req.body.startTime).local().format(), 
-	// 		timeZone: req.body.tz || "America/New_York" 
-	// 	} 
-	// }
-	// else if(req.body.startDate) { 
-	// 	params.start = { 
-	// 		date: req.body.startDate, 
-	// 		timeZone: req.body.tz || "America/New_York" } 
-	// }
+	// the web app is not sending date as js date string, it splits in into date and time fields, that why this is here
+	if (req.body.startTime) {
+		params.start = {
+			dateTime: moment(req.body.startDate + " " +  req.body.startTime).local().format(),
+			timeZone: req.body.tz || "America/New_York"
+		}
+	}
+	else if(req.body.startDate) {
+		params.start = {
+			date: req.body.startDate,
+			timeZone: req.body.tz || "America/New_York" }
+	}
 
-	// if (req.body.endTime) { 
-	// 	params.end = { 
-	// 		dateTime: moment(req.body.endDate + ' ' + req.body.endTime).local().format(), 
-	// 		timeZone: req.body.tz || "America/New_York" 
-	// 	} 
-	// }
-	// else if(req.body.endDate) { 
-	// 	params.end = { 
-	// 		date: req.body.endDate, 
-	// 		timeZone: req.body.tz || "America/New_York" 
-	// 	} 
-	// }
+	if (req.body.endTime) {
+		params.end = {
+			dateTime: moment(req.body.endDate + ' ' + req.body.endTime).local().format(),
+			timeZone: req.body.tz || "America/New_York"
+		}
+	}
+	else if(req.body.endDate) {
+		params.end = {
+			date: req.body.endDate,
+			timeZone: req.body.tz || "America/New_York"
+		}
+	}
 
 
 	calendarApi.authorizeAsync(env.googleCalendar.getCredentials())
