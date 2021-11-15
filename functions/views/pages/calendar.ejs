@@ -106,7 +106,7 @@
 
               <div class="form-floating mb-3">
                 <select class="form-control event_category" id="event_category" name="category" required="required">
-                  <option value="">Select</option>
+                  <option value="Uncat">All Categories</option>
                   <% categories.forEach((el) =>
                   { %><option value="<%= el.name %>" ><%= el.name %></option> <% } ); %>
                 </select>
@@ -152,7 +152,7 @@
 
                 <div class="form-floating mb-3">
                   <select class="form-control notification_category" id="notification_category" name="category" required="required">
-                    <option value="">Select</option>
+                    <option value="Uncat">All Categories</option>
                     <% categories.forEach((el) =>
                     { %><option value="<%= el.name %>" ><%= el.name %></option> <% } ); %>
                   </select>
