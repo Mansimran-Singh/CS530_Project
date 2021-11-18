@@ -6,6 +6,7 @@ const path = require('path');
 const os = require('os');
 const engines = require('consolidate');
 const bodyparser = require('body-parser')
+const moment = require('moment-timezone');
 
 // local modules
 const db = require('./db');
@@ -22,6 +23,7 @@ app.use(logger);
 app.use(bodyparser.urlencoded({extended:false}));
 app.use(bodyparser.json());
 
+app.locals.moment = moment;
 
 /********************************************************************************************** */
 // main application

@@ -5,7 +5,7 @@ const { MongoClient } = require("mongodb");
 const db = require('./../../db');
 
 const calendarApi = require("../../model/calendar");
-const moment = require("moment");
+const moment = require('moment-timezone');
 const {google} = require("googleapis");
 const axios = require('axios');
 
@@ -70,7 +70,7 @@ router.get('/', async function (req, res) {
 // }
 // CREATE
 router.post('/', (req, res) => {
-	const tz = req.body.tz || Intl.DateTimeFormat().resolvedOptions().timeZone;
+	const tz = req.body.tz || "America/New_York";
 	const start = moment().format();
 	const end = moment(start).add(30, 'minutes').format();
 
@@ -88,20 +88,20 @@ router.post('/', (req, res) => {
 	// the web app is not sending date as js date string, it splits in into date and time fields, that why this is here
 	if (req.body.startTime) {
 		params.start = {
-			dateTime: moment(req.body.startDate + " " +  req.body.startTime).local().format(),
-			timeZone: req.body.tz || "America/New_York"
+			dateTime: moment.tz(req.body.startDate + " " +  req.body.startTime, tz).format(),
+			timeZone: tz
 		}
 	}
 	else if(req.body.startDate) {
 		params.start = {
 			date: req.body.startDate,
-			timeZone: req.body.tz || "America/New_York" }
+			timeZone: tz }
 	}
 
 	if (req.body.endTime) {
 		params.end = {
-			dateTime: moment(req.body.endDate + ' ' + req.body.endTime).local().format(),
-			timeZone: req.body.tz || "America/New_York"
+			dateTime: moment.tz(req.body.endDate + ' ' + req.body.endTime, tz).format(),
+			timeZone: tz
 		}
 	}
 	else if(req.body.endDate) {
@@ -111,7 +111,7 @@ router.post('/', (req, res) => {
 			// fixing end time being 1 day short
 			// *****
 			date: moment(req.body.endDate).add(1, "days").format("YYYY-MM-DD"),
-			timeZone: req.body.tz || "America/New_York"
+			timeZone: tz
 		}
 	}
 
@@ -228,22 +228,24 @@ router.delete('/:id', (req, res) => {
 
 });
 
-// https://developers.google.com/calendar/api/v3/reference/events/delete
+// https://developers.google.com/calendar/api/v3/reference/events/update
 // usage: http://localhost:5001/api/calendar/update
 // body:
 // {
 // 	"eventId": "ja3ac1m7aba7lf9cturv0gflug",
 // 	"tz": "America/New_York",
 // 	"colorId": null,
-// 	"startTime": "2021-10-25T16:30:00-04:00",
-// 	"endTime": "2021-10-25T17:45:00-04:00",
+// 	"startDate":"2021-11-03",
+// 	"startTime":"09:30:00",
+// 	"endDate":"2021-11-03",
+// 	"endTime":"10:30:00",
 // 	"summary": "CS530",
 // 	"description": "Regular class time",
 // 	"category": "Community"
 // }
 // UPDATE
 router.put('/:id', (req, res) => {
-
+	const tz = req.body.tz || "America/New_York";
 	if(req.body.eventId == null){
 		res.status(400).send('event id is missing');
 		return;
@@ -268,14 +270,14 @@ router.put('/:id', (req, res) => {
 
 
 	if (req.body.is_allday === undefined)
-	{ params.resource.start = { dateTime: moment(req.body.startDate + " " +  req.body.startTime).local().format(), timeZone: req.body.tz || "America/New_York" } }
+	{ params.resource.start = { dateTime: moment.tz(req.body.startDate + " " +  req.body.startTime, tz).format()} }
 	else if(req.body.startDate)
-	{ params.resource.start = { date: req.body.startDate, timeZone: req.body.tz || "America/New_York" } }
+	{ params.resource.start = { date: req.body.startDate, timeZone: tz } }
 
 	if (req.body.is_allday === undefined)
-	{ params.resource.end = { dateTime: moment(req.body.endDate + ' ' + req.body.endTime).local().format(), timeZone: req.body.tz || "America/New_York" } }
+	{ params.resource.end = { dateTime: moment.tz(req.body.endDate + " " + req.body.endTime, tz).format()} }
 	else if(req.body.endDate)
-	{ params.resource.end = { date: endDate, timeZone: req.body.tz || "America/New_York" } }
+	{ params.resource.end = { date: endDate, timeZone: tz } }
 
 	if (req.body.summary) params.resource.summary = req.body.summary;
 	if (req.body.description) params.resource.description = req.body.description;
