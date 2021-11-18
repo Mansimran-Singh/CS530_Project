@@ -60,6 +60,7 @@
             </div>
             <div class="modal-body">
               <input type="hidden" name="eventId" id="event_id" value="" />
+              <input type="hidden" name="tz" id="event_tz" value="" />
 
               <div class="form-check mb-3">
                 <input type="checkbox" class="form-check-input event_is_allday" id="event_is_allday" name="is_allday" value="" placeholder="" autocomplete="off" />
@@ -188,7 +189,7 @@
   </body>
 
   <script>
-    var vm = {notificationOnly: false};
+    var vm = {};
 
     vm.broadcast = (eventName) => { dispatchEvent( new Event(eventName));}
     vm.listen = (eventName, func) => { addEventListener(eventName, () => func() ) };
@@ -204,6 +205,7 @@
     vm.eventModal = new bootstrap.Modal(document.getElementById('event_modal'), vm.modalOptions);
     vm.eventModalEl = document.getElementById('event_modal');
     vm.eventIdEl = document.getElementById('event_id');
+    vm.eventTimezoneEl = document.getElementById('event_tz');
     vm.btnSaveEl = document.getElementById('btn_event_save');
     vm.btnEventNotifyOpenEl = document.getElementById('btn_event_notify_open');
     vm.btnNotificationSendEl = document.getElementById('btn_notification_send');
@@ -229,6 +231,8 @@
     vm.eventModalEl.addEventListener('show.bs.modal', function (event) {
       console.log('show.bs.modal');
 
+      vm.setTimezone();
+
       // ** get event
       if(vm.eventIdEl.value !== ''){
         fetch("/api/events/" + vm.eventIdEl.value , {
@@ -250,11 +254,6 @@
 
           // ** update modal's contents
           vm.eventSummaryEl.value = response.summary;
-          console.log(moment(response.start.date || response.start.dateTime).local().format("YYYY-MM-DD"));
-          console.log(moment(response.start.date || response.start.dateTime).local().format("HH:mm:ss"));
-
-          console.log(moment(response.end.date || response.end.dateTime).local().format("YYYY-MM-DD"));
-          console.log(moment(response.end.date || response.end.dateTime).local().format("HH:mm:ss"));
 
           vm.eventStartDateEl.value = moment(response.start.date || response.start.dateTime).local().format("YYYY-MM-DD");
           vm.eventStartTimeEl.value = !vm.isEventAllDay ? moment(response.start.date || response.start.dateTime).local().format("HH:mm:ss") : '';
@@ -296,7 +295,7 @@
     });
 
     vm.btnNotifyAllEl.addEventListener('click', function(e){
-      vm.notificationOnly = true;
+
     });
 
     vm.eventIsAllDayEl.addEventListener('change', function(e){
@@ -347,6 +346,7 @@
     }
 
     vm.resetModalValues = function(){
+      vm.setTimezone();
       vm.eventIdEl.value = '';
       vm.eventSummaryEl.value = '';
       vm.eventStartDateEl.value = '';
@@ -354,6 +354,10 @@
       vm.eventEndDateEl.value = '';
       vm.eventEndTimeEl.value = '';
       vm.eventCategoryEl.value = 'Uncat';
+    }
+
+    vm.setTimezone = function(){
+      vm.eventTimezoneEl.value = Intl.DateTimeFormat().resolvedOptions().timeZone ?? null;
     }
 
     vm.updateEvent = function(){
