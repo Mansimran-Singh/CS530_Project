@@ -3,7 +3,7 @@ const router = express.Router();
 const env = require('./env.js');
 const db = require('./db');
 const request = require('request');
-const moment = require('moment');
+const moment = require('moment-timezone');
 const os = require('os');
 
 
@@ -96,6 +96,7 @@ router.get('/previousByCategory/:category?', (req, res) => {
 // {
 //     "eventid": "798aie9ik05fkg9repr6jcnfjc",
 //     "category": "Uncat",
+// 	   "categories": "["Volunteer","Community"]"
 //     "title": "HI EVERYONE",
 //     "message": "Live during demo"
 // }
@@ -105,9 +106,27 @@ router.post('/send', (req, res) => {
 
     // Dan, we can use ?? operator again after upgrading node to v16 in GCLOUD.
     const eventId = req.body.eventid ?? null;
-    const category = req.body.category ?? 'Uncat';
     const title = req.body.title ?? 'Spam Notification';
     const message = req.body.message ?? null;
+    const categories = JSON.parse(req.body.categories) ?? [];
+
+    let condition = ''
+
+    // ** https://firebase.google.com/docs/cloud-messaging/android/topic-messaging#node.js_3
+    const conditionsLimit = 5;
+    if(categories.length > 0){
+        categories.forEach( (category, index) => {
+            if(index < conditionsLimit){
+                condition += `'${category}' in topics`;
+                if(index < categories.length -1 && index < conditionsLimit -1){
+                    condition += ' || ';
+                }
+            }
+        });
+    }
+    else{
+       condition = `'Uncat' in topics`;
+    }
 
     let url = env.firebaseMessageEndpoint;
     let headers = {
@@ -115,18 +134,18 @@ router.post('/send', (req, res) => {
         'Authorization': `key=${env.firebaseMessagePrivateKey}`
     };
     let body = {
-        to: `/topics/${category}`,
         priority: 'high',
-        notification: {
-            title: title,
-            body: message,
-        },
+        // notification: {
+        //     title: title,
+        //     body: message,
+        // },
         data: {
             eventId: eventId,
             title: title,
             body: message,
-            category: category,
-        }
+            categories: categories,
+        },
+        condition: condition
     };
 
     request.post({url: url, json: true, headers: headers, body: body, }, (err, response, responseBody) => {
@@ -155,7 +174,7 @@ router.post('/send', (req, res) => {
                 username: userInfo.username,
 
                 eventId: eventId,
-                category: category,
+                categories: categories,
                 title: title,
                 message: message,
             };

@@ -13,7 +13,7 @@ const axios = require('axios');
 // https://developers.google.com/calendar/api/v3/reference/events/list
 // GET all
 router.get('/', async function (req, res) {
-	let categories = req.params.category || req.query.category;
+	let categories = req.params.categories || req.query.categories;
 	if (typeof categories === 'string' || categories instanceof String) {
 		categories = categories.split(',');
 	}
@@ -25,10 +25,10 @@ router.get('/', async function (req, res) {
 		mongoEvents = await db.client
 			.db(env.databaseName)
 			.collection('events')
-			.find({'category': {$in: categories}})
+			.find({'categories': {$in: categories}})
 			.project({
 				id: true,
-				category: true
+				categories: true
 			})
 			.toArray();
 	}
@@ -42,7 +42,7 @@ router.get('/', async function (req, res) {
 					// if we're filtering
 					if (categories) {
 						for (var r of results) {
-							r.eventCategory = mongoEvents.find(x => x.id == r.id)?.category;
+							r.eventCategories = mongoEvents.find(x => x.id == r.id)?.categories;
 						}
 					}
 
@@ -66,7 +66,7 @@ router.get('/', async function (req, res) {
 // 	"startTime":"09:30:00",
 // 	"endDate":"2021-11-03",
 // 	"endTime":"10:30:00",
-// 	"category":"Volunteer"
+// 	"categories": "["Volunteer","Community"]"
 // }
 // CREATE
 router.post('/', (req, res) => {
@@ -81,7 +81,7 @@ router.post('/', (req, res) => {
 		end: { dateTime: req.body.endTime || end, timeZone: tz, },
 		summary: req.body.summary || 'test',
 		description: req.body.description || 'test event',
-		category: req.body.category || 'Volunteer'
+		categories: JSON.parse(req.body.categories)
 	};
 
 	// this causes errors with moment in date formats. why was this added and is it necessary? -- DAC
@@ -125,7 +125,7 @@ router.post('/', (req, res) => {
 
 							let data = {
 								"eventid": null, //value.eventId,
-								"category": params.category,
+								"categories": JSON.stringify(params.categories),
 								"title": "New event created",
 								"message": params.summary
 							};
@@ -179,7 +179,7 @@ router.get('/:id', (req, res) => {
 							.then(
 								localResult => {
 									if(localResult){
-										remoteResult.data.eventCategory = localResult.category;
+										remoteResult.data.eventCategories = localResult.categories;
 									}
 									res.json(remoteResult.data);
 								},
@@ -241,7 +241,7 @@ router.delete('/:id', (req, res) => {
 // 	"endTime":"10:30:00",
 // 	"summary": "CS530",
 // 	"description": "Regular class time",
-// 	"category": "Community"
+// 	"categories": "["Volunteer","Community"]"
 // }
 // UPDATE
 router.put('/:id', (req, res) => {
@@ -251,6 +251,7 @@ router.put('/:id', (req, res) => {
 		return;
 	}
 
+	const categories = JSON.parse(req.body.categories);
 	const eventId = req.body.eventId;
 	const params = {
 		calendarId: env.googleCalendar.calendarId,
@@ -300,7 +301,7 @@ router.put('/:id', (req, res) => {
 					}
 
 					let event = result.data;
-					event.category = params.resource.category;
+					event.categories = categories;
 
 					db.client.connect((err, db) => {
 						if (err) {

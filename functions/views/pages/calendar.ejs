@@ -105,13 +105,26 @@
                 </div>
               </div>
 
-              <div class="form-floating mb-3">
-                <select class="form-control event_category" id="event_category" name="category" required="required">
-                  <option value="Uncat">All Categories</option>
-                  <% categories.forEach((el) =>
-                  { %><option value="<%= el.name %>" ><%= el.name %></option> <% } ); %>
-                </select>
-                <label for="event_category">Category</label>
+              <div class="card bg-dark bg-gradient bg-opacity-75 text-white">
+                <div class="card-header">
+                  Categories
+                </div>
+                <div class="card-body">
+
+                  <%
+                  let index = 0;
+                  categories.forEach((el) => {
+                  %>
+                    <div class="form-check form-switch">
+                      <input class="form-check-input event_category" name="categories" value="<%= el.name %>" type="checkbox" id="categorySwitch<%= index %>">
+                      <label class="form-check-label" for="categorySwitch<%= index %>"><%= el.name %></label>
+                    </div>
+                  <%
+                    index++;
+                  } );
+                  %>
+
+                </div>
               </div>
 
             </div>
@@ -162,14 +175,19 @@
                   <label for="event_notification_message">Message</label>
                 </div>
 
-                <div class="form-floating mb-3">
-                  <select class="form-control notification_category" id="notification_category" name="category" required="required">
-                    <option value="Uncat">All Categories</option>
-                    <% categories.forEach((el) =>
-                    { %><option value="<%= el.name %>" ><%= el.name %></option> <% } ); %>
-                  </select>
-                  <label for="notification_category">Category</label>
-                </div>
+                <%
+                let nIndex = 0;
+                categories.forEach((el) => {
+                %>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input notification_category" name="categories" value="<%= el.name %>" type="checkbox" id="notificationCategorySwitch<%= nIndex %>">
+                    <label class="form-check-label" for="notificationCategorySwitch<%= nIndex %>"><%= el.name %></label>
+                  </div>
+                <%
+                  nIndex++;
+                } );
+                %>
+
               </div>
               <div class="modal-footer justify-content-between">
                 <button class="btn btn-outline-primary" data-bs-dismiss="modal" type="button">Cancel</button>
@@ -181,8 +199,6 @@
       </div>
       </div>
     </div>
-
-
 
     <!-- Footer-->
     <%- include('../partials/footer') -%>
@@ -221,12 +237,13 @@
     vm.eventEndDateEl = vm.eventModalEl.querySelector('.modal-body .event_end_date');
     vm.eventEndTimeEl = vm.eventModalEl.querySelector('.modal-body .event_end_time');
     vm.eventIsAllDayEl = vm.eventModalEl.querySelector('.modal-body .event_is_allday');
-    vm.eventCategoryEl = vm.eventModalEl.querySelector('.modal-body #event_category');
+    vm.eventCategoriesEls = vm.eventModalEl.querySelectorAll('.modal-body .event_category');
 
     vm.notifyModalEl = document.getElementById('event_notification_modal');
     vm.notifyModal = new bootstrap.Modal(vm.notifyModalEl, vm.modalOptions);
     vm.notifyEventIdEl = vm.notifyModalEl.querySelector('.modal-body #notify_event_id');
     vm.notifyTitleEl = vm.notifyModalEl.querySelector('.modal-body #event_notification_title');
+    vm.notifyCategoriesEls = vm.notifyModalEl.querySelectorAll('.modal-body .notification_category');
 
     vm.eventModalEl.addEventListener('show.bs.modal', function (event) {
       console.log('show.bs.modal');
@@ -259,8 +276,18 @@
           vm.eventStartTimeEl.value = !vm.isEventAllDay ? moment(response.start.date || response.start.dateTime).local().format("HH:mm:ss") : '';
           vm.eventEndDateEl.value = moment(response.end.date || response.end.dateTime).local().format("YYYY-MM-DD");
           vm.eventEndTimeEl.value = !vm.isEventAllDay ? moment(response.end.date || response.end.dateTime).local().format("HH:mm:ss") : '';
-          console.log(response.eventCategory);
-          vm.eventCategoryEl.value = response.eventCategory ? response.eventCategory : 'Uncat';
+
+          vm.eventCategoriesEls.forEach( el => {
+            el.checked = false;
+          });
+
+          if(response.eventCategories){
+            response.eventCategories.forEach( val => {
+              console.log( 'select ' + val);
+              vm.eventModalEl.querySelector('.modal-body .event_category[value=' + val + ']').checked = true;
+            });
+          }
+
         })
         .catch((err) => {
           console.dir(err);
@@ -285,6 +312,15 @@
         // ** copy event id to notification modal
         vm.notifyEventIdEl.value = vm.eventIdEl.value;
         vm.notifyTitleEl.value = vm.eventSummaryEl.value;
+
+        // ** copy event categories
+        vm.notifyCategoriesEls.forEach( nEl => {
+          vm.eventCategoriesEls.forEach( eEl => {
+            if(eEl.value === nEl.value){
+              nEl.checked = eEl.checked;
+            }
+          });
+        });
       }
       else{
       }
@@ -353,7 +389,8 @@
       vm.eventStartTimeEl.value = '';
       vm.eventEndDateEl.value = '';
       vm.eventEndTimeEl.value = '';
-      vm.eventCategoryEl.value = 'Uncat';
+
+      vm.eventCategoriesEls.forEach( el => el.checked = false );
     }
 
     vm.setTimezone = function(){
@@ -365,6 +402,11 @@
       let req = new XMLHttpRequest();
       req.open(data.get('eventId') ? "PUT" : "POST", "/api/events/" + data.get('eventId'), false );
       req.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+      /** a hack to get checkboxes to send an array of values
+       * does not seem right, but that is what works */
+      data.set('categories', JSON.stringify(data.getAll('categories')));
+
       req.send( JSON.stringify( Object.fromEntries(data)) );
 
       vm.reloadEvents();
@@ -393,8 +435,13 @@
     vm.sendPushNotification = function(){
       let data = new FormData(vm.notificationFormEl);
       let req = new XMLHttpRequest();
-      req.open("POST", "/notify/send" /*+ data.get('eventId')*/, false );
+      req.open("POST", "/notify/send", false );
       req.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+      /** a hack to get checkboxes to send an array of values
+       * does not seem right, but that is what works */
+      data.set('categories', JSON.stringify(data.getAll('categories')));
+
       req.send( JSON.stringify( Object.fromEntries(data)) );
     }
 

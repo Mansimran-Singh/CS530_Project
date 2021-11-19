@@ -2,7 +2,7 @@
 // const router = express.Router();
 const env = require('../env');
 const db = require('../db');
-const moment = require('moment');
+const moment = require('moment-timezone');
 const os = require('os');
 // const fs = require('fs');
 const {google} = require('googleapis');
@@ -156,6 +156,7 @@ calendarApi.listEventsAsync = function listEventsAsync(oAuth2Client) {
             event: event,
             notifications: [],
             eventCategory: event.category,
+            eventCategories: event.categories,
 
             /* tui.Calendar required fields, see https://nhn.github.io/tui.calendar/latest/Schedule */
             calendarId: env.googleCalendar.calendarId,
@@ -211,7 +212,7 @@ calendarApi.insertEventAsync = function insertEventAsync(oAuth2Client, params) {
 
       let event = res.data;
       event.notifications = [];
-      event.category = params.category;
+      event.categories = params.categories;
 
       db.client.connect((err, db) => {
         if (err) {

@@ -1,5 +1,5 @@
 const express = require('express');
-const moment = require('moment');
+const moment = require('moment-timezone');
 const os = require('os');
 const env = require('./../env.js');
 const { MongoClient } = require('mongodb');

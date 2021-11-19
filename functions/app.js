@@ -5,7 +5,6 @@ const app = express();
 const path = require('path');
 const os = require('os');
 const engines = require('consolidate');
-const bodyparser = require('body-parser')
 const moment = require('moment-timezone');
 
 // local modules
@@ -18,10 +17,10 @@ const port = env.httpPort ? env.httpPort : 5002;
 
 
 // middleware registration
-app.use(logger);
+// app.use(logger);
 
-app.use(bodyparser.urlencoded({extended:false}));
-app.use(bodyparser.json());
+app.use(express.urlencoded({extended: true}));
+app.use(express.json());
 
 app.locals.moment = moment;
 
@@ -49,7 +48,6 @@ app.get('/categories',  (req, res) => {
 });
 app.use('/api/categories', require('./api/categories/categories'));
 app.use('/api/events', require('./api/events/events'));
-app.use('/api/calendar', require('./api/calendar/calendar'));
 app.use('/calendar', require('./controllers/calendar'));
 
 
