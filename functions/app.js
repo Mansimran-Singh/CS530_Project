@@ -10,6 +10,7 @@ const moment = require('moment-timezone');
 // local modules
 const db = require('./db');
 const logger = require('./middleware/logger');
+const firebaseAuth = require('./middleware/firebaseauth');
 const errorhandler = require('./middleware/errorhandler');
 
 // configuration
@@ -17,7 +18,9 @@ const port = env.httpPort ? env.httpPort : 5002;
 
 
 // middleware registration
-// app.use(logger);
+
+app.use(logger);
+app.use(firebaseAuth);
 
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());

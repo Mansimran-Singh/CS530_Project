@@ -10,10 +10,12 @@ const {google} = require("googleapis");
 const axios = require('axios');
 
 
+router.use(express.json());
+
 // https://developers.google.com/calendar/api/v3/reference/events/list
 // GET all
 router.get('/', async function (req, res) {
-	let categories = req.params.categories || req.query.categories;
+	let categories = req.body.categories || req.query.categories || req.body.category || req.query.category;
 	if (typeof categories === 'string' || categories instanceof String) {
 		categories = categories.split(',');
 	}
@@ -38,15 +40,23 @@ router.get('/', async function (req, res) {
 			// ** authorized
 			calendarApi.listEventsAsync(oAuthClient).then(
 				(results) => {
+					let filteredResults = null;
 
 					// if we're filtering
 					if (categories) {
+						categories.push('Uncat');
+						filteredResults = [];
+						
 						for (var r of results) {
-							r.eventCategories = mongoEvents.find(x => x.id == r.id)?.categories;
+							r.eventCategory = mongoEvents.find(x => x.id == r.id)?.category;
+							if (categories.includes(r.eventCategory)) {
+								filteredResults.push(r);
+							}
+
 						}
 					}
 
-					res.json(results);
+					res.json(filteredResults ?? results);
 				},
 				(err) => {
 					res.status(401).send('not authorized');

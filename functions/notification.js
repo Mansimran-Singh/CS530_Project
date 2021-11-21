@@ -95,8 +95,7 @@ router.get('/previousByCategory/:category?', (req, res) => {
 // request body:
 // {
 //     "eventid": "798aie9ik05fkg9repr6jcnfjc",
-//     "category": "Uncat",
-// 	   "categories": "["Volunteer","Community"]"
+//     "categories": ["Uncat", "Volunteer"], //  "Uncat" or "Uncat","Volunteer"
 //     "title": "HI EVERYONE",
 //     "message": "Live during demo"
 // }
@@ -128,12 +127,25 @@ router.post('/send', (req, res) => {
        condition = `'Uncat' in topics`;
     }
 
+
+    let categories = req.params.categories || req.query.categories;
+    if (typeof categories === 'string' || categories instanceof String) {
+        categories = categories.split(',');
+    }
+
+    if (!categories || !Array.isArray(categories)) {
+        categories = ['Uncat'];
+    }
+
+
+
     let url = env.firebaseMessageEndpoint;
     let headers = {
         'content-type': 'application/json',
         'Authorization': `key=${env.firebaseMessagePrivateKey}`
     };
     let body = {
+        to: `/topics/Uncat`,
         priority: 'high',
         // notification: {
         //     title: title,
