@@ -54,19 +54,19 @@ router.get('/previousByEvent/:id', (req, res) => {
 // requests can be sent in one of two formats:
 //      http://localhost:5001/notify/previousByCategory?category=Volunteer,All
 //      http://localhost:5001/notify/previousByCategory?category=Volunteer&category=All
-router.get('/previousByCategory/:category?', (req, res) => {
+router.get('/previousByCategory/:categories?', (req, res) => {
    
-    let category = req.params.category || req.query.category;
-    if (!category) {
+    let categories = req.params.categories || req.query.categories;
+    if (!categories) {
         res.sendStatus(400);
         return;
     }
 
-    if (typeof category === 'string' || category instanceof String) {
-        category = category.split(',');
+    if (typeof categories === 'string' || categories instanceof String) {
+        categories = categories.split(',');
     }
 
-    if (!Array.isArray(category)) {
+    if (!Array.isArray(categories)) {
         res.sendStatus(400);
         return;
     }
@@ -78,7 +78,7 @@ router.get('/previousByCategory/:category?', (req, res) => {
         }
 
         let collection = client.db(env.databaseName).collection('message_history');
-        collection.find({'category': {$exists: true,  $in: category}}).toArray((err1, result) => {
+        collection.find({'category': {$exists: true,  $in: categories}}).toArray((err1, result) => {
             if (err1) {
                 res.status(500).send(`${JSON.stringify(err1)}`);
                 return;
