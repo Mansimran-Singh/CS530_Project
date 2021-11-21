@@ -52,8 +52,8 @@ router.get('/previousByEvent/:id', (req, res) => {
 
 
 // requests can be sent in one of two formats:
-//      http://localhost:5001/notify/previousByCategory?category=Volunteer,All
-//      http://localhost:5001/notify/previousByCategory?category=Volunteer&category=All
+//      http://localhost:5001/notify/previousByCategory?categories=Volunteer,Uncat
+//      http://localhost:5001/notify/previousByCategory?categories=Volunteer&category=Uncat
 router.get('/previousByCategory/:categories?', (req, res) => {
    
     let categories = req.params.categories || req.query.categories;
