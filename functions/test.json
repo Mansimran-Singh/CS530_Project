@@ -1,0 +1,1 @@
+"{\"to\":\"/topics/Uncat\",\"priority\":\"high\",\"data\":{\"eventId\":\"\",\"title\":\"dan test\",\"body\":\"test\",\"categories\":[\"Volunteer\",\"Community\"]},\"condition\":\"'Volunteer' in topics || 'Community' in topics\"}"

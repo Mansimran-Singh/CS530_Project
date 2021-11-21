@@ -77,8 +77,15 @@ router.get('/previousByCategory/:categories?', (req, res) => {
             return;
         }
 
+        let query = {
+            $or: [
+                { 'categories': {$exists: true,  $in: categories} },
+                { 'category': {$exists: true,  $in: categories} }, // TODO: remove when data cleanup is complete
+            ]
+        };
+
         let collection = client.db(env.databaseName).collection('message_history');
-        collection.find({'category': {$exists: true,  $in: categories}}).toArray((err1, result) => {
+        collection.find(query).toArray((err1, result) => {
             if (err1) {
                 res.status(500).send(`${JSON.stringify(err1)}`);
                 return;
