@@ -127,18 +127,6 @@ router.post('/send', (req, res) => {
        condition = `'Uncat' in topics`;
     }
 
-
-    let categories = req.params.categories || req.query.categories;
-    if (typeof categories === 'string' || categories instanceof String) {
-        categories = categories.split(',');
-    }
-
-    if (!categories || !Array.isArray(categories)) {
-        categories = ['Uncat'];
-    }
-
-
-
     let url = env.firebaseMessageEndpoint;
     let headers = {
         'content-type': 'application/json',
