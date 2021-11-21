@@ -22,7 +22,7 @@ https://cs530-beclawski.web.app
 required packages:
 
 cd functions
-npm install mongodb express mocha chai moment request googleapis@39 date-fns axios --save
+npm install mongodb express mocha chai moment moment-timezone request googleapis@39 date-fns axios --save
 npm install -D nodemon
 
 ### log out and log back in with new account if previously initialized the project with another
