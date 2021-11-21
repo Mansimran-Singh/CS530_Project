@@ -133,7 +133,6 @@ router.post('/send', (req, res) => {
         'Authorization': `key=${env.firebaseMessagePrivateKey}`
     };
     let body = {
-        to: `/topics/Uncat`,
         priority: 'high',
         // notification: {
         //     title: title,
