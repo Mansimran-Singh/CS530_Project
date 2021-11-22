@@ -98,6 +98,12 @@ router.post('/', (req, res) => {
 	const start = moment().format();
 	const end = moment(start).add(30, 'minutes').format();
 
+	let categories = JSON.parse(req.body.categories);
+
+	if(categories.length === 0){
+		categories.push("Uncat");
+	}
+
 	let params = {
 		sendUpdates: 'all',
 		colorId: req.body.colorId || null,
@@ -105,7 +111,7 @@ router.post('/', (req, res) => {
 		end: { dateTime: req.body.endTime || end, timeZone: tz, },
 		summary: req.body.summary || 'test',
 		description: req.body.description || 'test event',
-		categories: JSON.parse(req.body.categories)
+		categories: categories
 	};
 
 	// this causes errors with moment in date formats. why was this added and is it necessary? -- DAC
@@ -275,7 +281,12 @@ router.put('/:id', (req, res) => {
 		return;
 	}
 
-	const categories = JSON.parse(req.body.categories);
+	let categories = JSON.parse(req.body.categories);
+
+	if(categories.length === 0){
+		categories.push("Uncat");
+	}
+
 	const eventId = req.body.eventId;
 	const params = {
 		calendarId: env.googleCalendar.calendarId,

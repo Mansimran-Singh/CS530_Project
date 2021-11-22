@@ -284,7 +284,9 @@
           if(response.eventCategories){
             response.eventCategories.forEach( val => {
               console.log( 'select ' + val);
-              vm.eventModalEl.querySelector('.modal-body .event_category[value=' + val + ']').checked = true;
+              if(val != 'Uncat'){
+                vm.eventModalEl.querySelector('.modal-body .event_category[value=' + val + ']').checked = true;
+              }
             });
           }
 
