@@ -116,8 +116,8 @@ router.post('/', (req, res) => {
 		colorId: req.body.colorId || null,
 		start: { dateTime: req.body.startTime || start, timeZone: tz, },
 		end: { dateTime: req.body.endTime || end, timeZone: tz, },
-		summary: req.body.summary || 'test',
-		description: req.body.description || 'test event',
+		summary: req.body.summary || 'No Title provided',
+		description: req.body.description || 'No Description provided',
 		categories: categories
 	};
 
