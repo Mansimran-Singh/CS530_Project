@@ -23,11 +23,18 @@ router.get('/', async function (req, res) {
 	var mongoEvents = null;
 
 	if (categories) {
+		let query = {
+            $or: [
+                { 'categories': {$exists: true,  $in: categories} },
+                { 'category': {$exists: true,  $in: categories} }, // TODO: remove when data cleanup is complete
+            ]
+        };
+
 		await db.client.connect();
 		mongoEvents = await db.client
 			.db(env.databaseName)
 			.collection('events')
-			.find({'categories': {$in: categories}})
+			.find(query)
 			.project({
 				id: true,
 				categories: true
@@ -48,15 +55,22 @@ router.get('/', async function (req, res) {
 						filteredResults = [];
 						
 						for (var r of results) {
-							r.eventCategory = mongoEvents.find(x => x.id == r.id)?.category;
-							if (categories.includes(r.eventCategory)) {
+							let mongoEvent = mongoEvents.find(x => x.id == r.id);
+							if (mongoEvent) {
+								console.log('found one');
+							}
+							r.eventCategory = mongoEvent?.category || mongoEvent?.categories || null;
+							r.eventCategories = r.eventCategory; // TODO: remove?
+							
+							if (categories?.some(x => r.eventCategory?.includes(x))) {
 								filteredResults.push(r);
 							}
 
 						}
 					}
 
-					res.json(filteredResults ?? results);
+					res.send((filteredResults.length > 0) ? filteredResults : results);
+
 				},
 				(err) => {
 					res.status(401).send('not authorized');
