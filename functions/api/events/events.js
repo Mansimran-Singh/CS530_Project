@@ -47,13 +47,12 @@ router.get('/', async function (req, res) {
 			// ** authorized
 			calendarApi.listEventsAsync(oAuthClient).then(
 				(results) => {
-					let filteredResults = null;
+					let filteredResults = [];
 
 					// if we're filtering
 					if (categories) {
 						categories = [...new Set(categories)];
-						filteredResults = [];
-						
+
 						for (var r of results) {
 							let mongoEvent = mongoEvents.find(x => x.id == r.id);
 							if (mongoEvent) {
