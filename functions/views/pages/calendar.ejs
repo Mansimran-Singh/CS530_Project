@@ -295,10 +295,12 @@
             el.checked = false;
           });
 
-          if(response.eventCategories){
-            response.eventCategories.forEach( val => {
+          vm.eventCategories = Array.isArray(response.eventCategories) ? response.eventCategories : JSON.parse(response.eventCategories);
+
+          if(Array.isArray(vm.eventCategories)){
+            vm.eventCategories.forEach( val => {
               console.log( 'select ' + val);
-              if(val != 'Uncat'){
+              if(val !== 'Uncat'){
                 vm.eventModalEl.querySelector('.modal-body .event_category[value=' + val + ']').checked = true;
               }
             });

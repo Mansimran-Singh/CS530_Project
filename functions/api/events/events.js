@@ -211,9 +211,6 @@ router.get('/:id', (req, res) => {
 						remoteResult.data.end.date = moment(remoteResult.data.end.date).subtract(1, "days").format("YYYY-MM-DD");
 					}
 
-					/** prevent error when nothing in mongo */
-					remoteResult.data.eventCategories = ['Uncat'];
-
 					db.client.connect().then( client => {
 						db.client.db(env.databaseName).collection('events').findOne({id: remoteResult.data.id})
 							.then(
