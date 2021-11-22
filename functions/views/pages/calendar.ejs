@@ -106,10 +106,10 @@
               </div>
 
               <div class="card bg-dark bg-gradient bg-opacity-75 text-white">
-                <div class="card-header">
+                <div class="card-header py-1">
                   Categories
                 </div>
-                <div class="card-body">
+                <div class="card-body py-1">
 
                   <%
                   let index = 0;
@@ -124,6 +124,9 @@
                   } );
                   %>
 
+                </div>
+                <div class="card-footer py-1">
+                  <small class="text-warning">no selection applies all categories</small>
                 </div>
               </div>
 
@@ -153,7 +156,7 @@
 
 
     <div class="modal fade" id="event_notification_modal" aria-hidden="true" aria-labelledby="eventNotificationModalLabel" tabindex="-1">
-      <div class="modal-dialog modal-sm modal-dialog-centered-not modal-dialog-scrollable" >
+      <div class="modal-dialog modal-md modal-dialog-centered-not modal-dialog-scrollable" >
 
         <div class="modal-body">
           <form name="event_form" id="notification_form">
@@ -175,18 +178,30 @@
                   <label for="event_notification_message">Message</label>
                 </div>
 
-                <%
-                let nIndex = 0;
-                categories.forEach((el) => {
-                %>
-                  <div class="form-check form-switch">
-                    <input class="form-check-input notification_category" name="categories" value="<%= el.name %>" type="checkbox" id="notificationCategorySwitch<%= nIndex %>">
-                    <label class="form-check-label" for="notificationCategorySwitch<%= nIndex %>"><%= el.name %></label>
+                <div class="card bg-dark bg-gradient bg-opacity-75 text-white">
+                  <div class="card-header py-1">
+                    Categories
                   </div>
-                <%
-                  nIndex++;
-                } );
-                %>
+                  <div class="card-body py-1">
+
+                    <%
+                    let nIndex = 0;
+                    categories.forEach((el) => {
+                    %>
+                      <div class="form-check form-switch">
+                        <input class="form-check-input notification_category" name="categories" value="<%= el.name %>" type="checkbox" id="notificationCategorySwitch<%= nIndex %>">
+                        <label class="form-check-label" for="notificationCategorySwitch<%= nIndex %>"><%= el.name %></label>
+                      </div>
+                    <%
+                      nIndex++;
+                    } );
+                    %>
+
+                  </div>
+                  <div class="card-footer py-1">
+                    <small class="text-warning">no selection applies all categories</small>
+                  </div>
+                </div>
 
               </div>
               <div class="modal-footer justify-content-between">
@@ -195,8 +210,7 @@
               </div>
             </div>
           </form>
-
-      </div>
+        </div>
       </div>
     </div>
 
