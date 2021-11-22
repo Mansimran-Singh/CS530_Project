@@ -25,6 +25,7 @@ router.get('/', async function (req, res) {
 	if (categories) {
 		let query = {
             $or: [
+				// { 'summary': 'Saturday Meeting'}
                 { 'categories': {$exists: true,  $in: categories} },
                 { 'category': {$exists: true,  $in: categories} }, // TODO: remove when data cleanup is complete
             ]
@@ -37,6 +38,7 @@ router.get('/', async function (req, res) {
 			.find(query)
 			.project({
 				id: true,
+				summary: true,
 				categories: true
 			})
 			.toArray();
@@ -54,15 +56,20 @@ router.get('/', async function (req, res) {
 						categories = [...new Set(categories)];
 
 						for (var r of results) {
-							let mongoEvent = mongoEvents.find(x => x.id == r.id);
-							if (mongoEvent) {
+							let mongoEvent = mongoEvents.find(x => x.id === r.id);
+							if (mongoEvent?.summary === 'Saturday Meeting') {
 								console.log('found one');
 							}
 							r.eventCategory = mongoEvent?.category || mongoEvent?.categories || null;
 							r.eventCategories = r.eventCategory; // TODO: remove?
 
-							if (categories?.some(x => r.eventCategory?.includes(x)) || (categories.includes('Uncat') && (r.eventCategory === null || r.eventCategory === undefined))) {
-								filteredResults.push(r);
+							if (mongoEvent) {
+								if (categories?.some(x => r.eventCategory?.includes(x)) || (categories.includes('Uncat') && (r.eventCategory === null || r.eventCategory === undefined))) {
+									if (mongoEvent?.summary === 'Saturday Meeting') {
+										console.log('found one');
+									}
+									filteredResults.push(r);
+								}
 							}
 
 						}
