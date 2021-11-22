@@ -56,7 +56,7 @@ router.get('/previousByEvent/:id', (req, res) => {
 //      http://localhost:5001/notify/previousByCategory?categories=Volunteer&category=Uncat
 router.get('/previousByCategory/:categories?', (req, res) => {
    
-    let categories = req.params.categories || req.query.categories;
+    let categories = req.params.categories || req.query.categories || req.query.category;
     if (!categories) {
         res.sendStatus(400);
         return;
