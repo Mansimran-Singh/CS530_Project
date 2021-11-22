@@ -60,16 +60,17 @@ router.get('/', async function (req, res) {
 							}
 							r.eventCategory = mongoEvent?.category || mongoEvent?.categories || null;
 							r.eventCategories = r.eventCategory; // TODO: remove?
-							
+
 							if (categories?.some(x => r.eventCategory?.includes(x)) || (categories.includes('Uncat') && (r.eventCategory === null || r.eventCategory === undefined))) {
 								filteredResults.push(r);
 							}
 
 						}
+						res.send(filteredResults);
+						return;
 					}
 
-					res.send((filteredResults.length > 0) ? filteredResults : results);
-
+					res.send( results );
 				},
 				(err) => {
 					res.status(401).send('not authorized');
