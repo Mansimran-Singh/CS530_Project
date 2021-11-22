@@ -79,10 +79,14 @@ router.get('/previousByCategory/:categories?', (req, res) => {
 
         let query = {
             $or: [
-                { 'categories': {$exists: true,  $in: categories} },
-                { 'category': {$exists: true,  $in: categories} }, // TODO: remove when data cleanup is complete
+                { 'categories': { $exists: true, $in: categories } },
+                { 'category': { $exists: true, $in: categories } }, // TODO: remove when data cleanup is complete
             ]
         };
+
+        if (categories.includes('Uncat')) {
+            query.$or.push({ 'categories': { $exists: true, $eq: [] } });
+        }
 
         let collection = client.db(env.databaseName).collection('message_history');
         collection.find(query).toArray((err1, result) => {
