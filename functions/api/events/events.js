@@ -51,7 +51,7 @@ router.get('/', async function (req, res) {
 
 					// if we're filtering
 					if (categories) {
-						categories.push('Uncat');
+						categories = [...new Set(categories)];
 						filteredResults = [];
 						
 						for (var r of results) {
@@ -62,7 +62,7 @@ router.get('/', async function (req, res) {
 							r.eventCategory = mongoEvent?.category || mongoEvent?.categories || null;
 							r.eventCategories = r.eventCategory; // TODO: remove?
 							
-							if (categories?.some(x => r.eventCategory?.includes(x))) {
+							if (categories?.some(x => r.eventCategory?.includes(x)) || (categories.includes('Uncat') && (r.eventCategory === null || r.eventCategory === undefined))) {
 								filteredResults.push(r);
 							}
 
