@@ -72,6 +72,11 @@
                 <label for="event_summary">Title</label>
               </div>
 
+              <div class="form-floating mb-3">
+                <textarea class="form-control event_description" id="event_description" name="description" placeholder=""></textarea>
+                <label for="event_description">Description</label>
+              </div>
+
               <div class="row">
                 <div class="col">
                   <div class="form-floating mb-3">
@@ -246,6 +251,7 @@
     vm.notificationFormEl = document.querySelector('#notification_form');
 
     vm.eventSummaryEl = vm.eventModalEl.querySelector('.modal-body .event_summary');
+    vm.eventDescriptionEl = vm.eventModalEl.querySelector('.modal-body .event_description');
     vm.eventStartDateEl = vm.eventModalEl.querySelector('.modal-body .event_start_date');
     vm.eventStartTimeEl = vm.eventModalEl.querySelector('.modal-body .event_start_time');
     vm.eventEndDateEl = vm.eventModalEl.querySelector('.modal-body .event_end_date');
@@ -285,6 +291,7 @@
 
           // ** update modal's contents
           vm.eventSummaryEl.value = response.summary;
+          vm.eventDescriptionEl.value = response.description !== undefined ? response.description : '';
 
           vm.eventStartDateEl.value = moment(response.start.date || response.start.dateTime).local().format("YYYY-MM-DD");
           vm.eventStartTimeEl.value = !vm.isEventAllDay ? moment(response.start.date || response.start.dateTime).local().format("HH:mm:ss") : '';
@@ -403,6 +410,7 @@
       vm.setTimezone();
       vm.eventIdEl.value = '';
       vm.eventSummaryEl.value = '';
+      vm.eventDescriptionEl.value = '';
       vm.eventStartDateEl.value = '';
       vm.eventStartTimeEl.value = '';
       vm.eventEndDateEl.value = '';
