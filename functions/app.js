@@ -8,30 +8,26 @@ const engines = require('consolidate');
 const moment = require('moment-timezone');
 
 
-const { initializeApp } = require("firebase/app");
-const { getAuth, getRedirectResult, GoogleAuthProvider } = require("firebase/auth");
-
-
-
 // local modules
 const db = require('./db');
 const logger = require('./middleware/logger');
 const firebaseAuth = require('./middleware/firebaseauth');
 const errorhandler = require('./middleware/errorhandler');
 
+
 // configuration
 const port = env.httpPort ? env.httpPort : 5002;
 
 
 // middleware registration
+app.use(logger); // logs all actions to the database for tracing
+app.use(firebaseAuth); // ensures user is active in firebase
 
-app.use(logger);
-app.use(firebaseAuth);
-
-app.use(express.urlencoded({extended: true}));
-app.use(express.json());
+app.use(express.urlencoded({extended: true})); // for allowing JSON in request bodies
+app.use(express.json()); // for allowing JSON in request bodies
 
 app.locals.moment = moment;
+
 
 /********************************************************************************************** */
 // main application
@@ -52,10 +48,8 @@ if (!runningRemotely) {
 
 // additional routes
 app.use('/notify', require('./notification'));
-app.get('/categories',  (req, res) => {
-    res.redirect('/api/categories', 302);
-});
 app.use('/api/categories', require('./api/categories/categories'));
+app.get('/categories',  (req, res) => { res.redirect('/api/categories', 302); });
 app.use('/api/events', require('./api/events/events'));
 app.use('/calendar', require('./controllers/calendar'));
 
