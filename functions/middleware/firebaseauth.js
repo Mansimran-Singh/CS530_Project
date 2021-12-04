@@ -7,7 +7,6 @@ const env = require('./../env.js');
 // const client = new MongoClient(env.mongoDbConnectionString);
 
 const firebaseAuth = (req, res, next) => {
-    
     const userId = req.userId;
     if (!userId) {
         // res.status(400).send('No user ID provided');

@@ -7,6 +7,12 @@ const os = require('os');
 const engines = require('consolidate');
 const moment = require('moment-timezone');
 
+
+const { initializeApp } = require("firebase/app");
+const { getAuth, getRedirectResult, GoogleAuthProvider } = require("firebase/auth");
+
+
+
 // local modules
 const db = require('./db');
 const logger = require('./middleware/logger');
@@ -60,7 +66,6 @@ app.engine('ejs', engines.ejs);
 app.set('view engine', 'ejs');
 
 
-
 // main web view routes
 app.get('/', (req, res) => {
     db.client.connect((err, client) => {
@@ -72,19 +77,15 @@ app.get('/', (req, res) => {
     });
 });
 
-app.get('/about', (req, res) => {
-    res.render('pages/about.ejs');
-  }
-);
+// app.get('/about', (req, res) => {
+//     res.render('pages/about.ejs');
+//   }
+// );
 
 app.get('/privacy', (req, res) => {
       res.render('pages/privacy.ejs');
   }
 );
-
-app.get('/error', (req, res) => {
-    throw new Error('barf?');
-});
 
 
  // This has to be at the end of app.js for... reasons?

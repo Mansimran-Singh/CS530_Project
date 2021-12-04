@@ -110,7 +110,6 @@ router.get('/previousByCategory/:categories?', (req, res) => {
 //     "title": "HI EVERYONE",
 //     "message": "Live during demo"
 // }
-
 router.post('/send', (req, res) => {
     const userInfo = os.userInfo();
 
