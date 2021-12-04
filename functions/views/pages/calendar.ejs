@@ -38,11 +38,13 @@
             <button id="nextBtn" class="btn btn-sm btn-outline-primary"><span class="d-none d-md-inline">Next</span><span class="d-inline d-md-none">></span></button>
           </div>
 
-          <a class="btn btn-sm btn-primary mx-auto" data-bs-toggle="modal" href="#event_notification_modal" role="button" id="btn_notify_all">Notify All</a>
+          <a class="btn btn-sm btn-primary mx-auto" data-bs-toggle="modal" href="#event_notification_modal" role="button" id="btn_notify_all">Notify...</a>
           <label class="mx-auto"><input type="checkbox" id="useWorkweek" autocomplete="off" /> Hide Weekends</label>
 
           <span id="current_date" class="current_date"></span>
         </div>
+
+        <h4 class="text-warning mb-0" id="currentYearMonthLbl"></h4>
 
         <div id="calendar" style="height: 800px"></div>
       </div>
@@ -246,6 +248,7 @@
     vm.btnNotificationSendEl = document.getElementById('btn_notification_send');
     vm.btnDeleteEl = document.getElementById('btn_event_delete');
     vm.btnNotifyAllEl = document.getElementById('btn_notify_all');
+    vm.currentYearMonthEl = document.getElementById('currentYearMonthLbl');
 
     vm.eventFormEl = document.querySelector('#event_form');
     vm.notificationFormEl = document.querySelector('#notification_form');
@@ -600,8 +603,6 @@
       afterRenderSchedule: function (e) {
         console.log('afterRenderSchedule');
         const schedule = e.schedule;
-        // var element = calendar.getElement(schedule.id, schedule.calendarId);
-        // console.log('afterRenderSchedule', element);
       },
       clickTimezonesCollapseBtn: function (timezonesCollapsed) {
         console.log("timezonesCollapsed", timezonesCollapsed);
@@ -624,14 +625,17 @@
 
     vm.prevBtn.addEventListener("click", (e) => {
       vm.calendar.prev();
+      vm.updateCurrentDateLabel();
     });
 
     vm.todayBtn.addEventListener("click", (e) => {
       vm.calendar.today();
+      vm.updateCurrentDateLabel();
     });
 
     vm.nextBtn.addEventListener("click", (e) => {
       vm.calendar.next();
+      vm.updateCurrentDateLabel();
     });
 
     vm.useWorkweek.addEventListener("change", (e) => {
@@ -641,6 +645,12 @@
         },
       });
     });
+
+    vm.updateCurrentDateLabel = function(){
+      vm.currentYearMonthEl.innerText = moment(vm.calendar.getDate().toDate()).format("MMMM YYYY");
+    }
+
+    vm.updateCurrentDateLabel();
 
   </script>
 </html>
