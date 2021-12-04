@@ -6,6 +6,7 @@ const calendarApi = require("../model/calendar");
 const db = require("./../db");
 
 
+// renders the page for viewing
 router.get('/', (req, res) => {
 
 	db.client.connect((err, client) => {
@@ -43,6 +44,8 @@ router.get('/connected', (req, res) => {
 });
 
 
+// because of how we are using Google Calendar API authentication,
+// the link needs to be updated occasionally
 router.get('/link', (req,res) => {
 	calendarApi.authorizeAsync(env.googleCalendar.getCredentials())
 		.then((value) => {
@@ -64,6 +67,8 @@ router.get('/link', (req,res) => {
 			});
 });
 
+
+// resets the authencation token
 router.get('/token/set', (req, res) => {
 	const {client_secret, client_id, redirect_uris} = env.googleCalendar.getCredentials().installed;
 	const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
@@ -100,6 +105,7 @@ router.get('/token/set', (req, res) => {
 
 	});
 });
+
 
 router.use(express.json());
 
