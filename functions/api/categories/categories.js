@@ -3,7 +3,7 @@ const router = express.Router();
 const env = require('./../../env');
 const { MongoClient } = require("mongodb");
 
-
+// returns a list of event category types from the database
 router.get('/', (req, res) => {
     const client = new MongoClient(env.mongoDbConnectionString);
     client.connect((err, db) => {
