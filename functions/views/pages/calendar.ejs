@@ -19,6 +19,13 @@
   </head>
 
   <body id="page-top">
+
+    <div id="loadingIndicator" class="justify-content-center">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+
     <!-- Navigation-->
     <%- include('../partials/nav') -%>
 
@@ -249,6 +256,7 @@
     vm.btnDeleteEl = document.getElementById('btn_event_delete');
     vm.btnNotifyAllEl = document.getElementById('btn_notify_all');
     vm.currentYearMonthEl = document.getElementById('currentYearMonthLbl');
+    vm.loadingIndicatorEl = document.getElementById('loadingIndicator');
 
     vm.eventFormEl = document.querySelector('#event_form');
     vm.notificationFormEl = document.querySelector('#notification_form');
@@ -275,6 +283,7 @@
 
       // ** get event
       if(vm.eventIdEl.value !== ''){
+        vm.broadcast('dataLoading');
         fetch("/api/events/" + vm.eventIdEl.value , {
           headers: { "Content-Type": "application/json; charset=utf-8" },
         })
@@ -320,7 +329,8 @@
         .catch((err) => {
           console.dir(err);
           alert(err.message);
-        });
+        })
+        .finally( () => vm.broadcast('dataLoaded') );
       }
       else{
         // ** reset modal
@@ -527,7 +537,24 @@
 
     });
 
+    vm.turnLoadingIndicator = function (blnSwitch){
+      if(blnSwitch){
+        console.log('dataLoading');
+        vm.loading = true
+        vm.loadingIndicatorEl.classList.add('active');
+      }
+      else {
+        console.log('dataLoaded');
+        vm.loading = false;
+        vm.loadingIndicatorEl.classList.remove('active');
+      }
+    }
+
+    vm.listen('dataLoaded', function(){ vm.turnLoadingIndicator(false); });
+    vm.listen('dataLoading', function(){ vm.turnLoadingIndicator(true); });
+
     vm.reloadEvents = function(){
+      vm.broadcast('dataLoading');
       fetch("/api/events", {
         headers: { "Content-Type": "application/json; charset=utf-8", "Pragma": "no-cache", "Cache-Control": "no-cache" },
       })
@@ -557,11 +584,7 @@
       });
     }
 
-    vm.broadcast('dataLoading');
     vm.reloadEvents();
-
-    vm.listen('dataLoaded', function(){ vm.loading = false;});
-    vm.listen('dataLoading', function(){ vm.loading = true;});
 
     vm.calendar.on({
       clickMore: function (e) {

@@ -250,3 +250,20 @@ https://stackoverflow.com/a/63473738/2631856
 	opacity: 0;
 }
 /**/
+
+#loadingIndicator{
+	position: fixed;
+	text-align: center;
+	top: 0;
+	color: var(--bs-warning);
+	display: none;
+	width: 100%;
+	height: 100vh;
+	padding-top: 49vh;
+	z-index: 1100;
+	background: #0008;
+}
+
+#loadingIndicator.active{
+	display: flex;
+}
