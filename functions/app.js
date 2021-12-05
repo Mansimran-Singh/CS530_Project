@@ -31,7 +31,7 @@ app.locals.moment = moment;
 
 /********************************************************************************************** */
 // main application
-// this switch in in place because when running locally, node needs app.listen, however
+// this switch is in place because when running locally, node needs app.listen, however
 // in the firebase hosting, it creates a conflict so it should not be used. We are using
 // the GCLOUD_PROJECT switch in the environment process as the indicator.
 
