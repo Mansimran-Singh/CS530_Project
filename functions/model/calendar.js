@@ -1,12 +1,7 @@
-// const express = require('express');
-// const router = express.Router();
 const env = require('../env');
 const db = require('../db');
 const moment = require('moment-timezone');
-const os = require('os');
-// const fs = require('fs');
 const {google} = require('googleapis');
-const { oauth2 } = require('googleapis/build/src/apis/oauth2');
 
 // event colors
 // https://developers.google.com/calendar/api/v3/reference/colors/get#.net

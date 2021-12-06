@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const env = require('./../../env');
-const { MongoClient } = require("mongodb");
 const db = require('./../../db');
 
 const calendarApi = require("../../model/calendar");

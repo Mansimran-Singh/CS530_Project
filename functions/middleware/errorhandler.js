@@ -1,4 +1,3 @@
-const express = require('express');
 const moment = require('moment-timezone');
 const os = require('os');
 const env = require('./../env');
