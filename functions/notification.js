@@ -119,23 +119,25 @@ router.post('/send', (req, res) => {
     const message = req.body.message ?? null;
     const categories = JSON.parse(req.body.categories) ?? [];
 
-    let condition = ''
+    let condition = '';
 
+    // ** mobile app currently is not subscribing to topics per category (that part is commented out), it only uses "Uncat"
     // ** https://firebase.google.com/docs/cloud-messaging/android/topic-messaging#node.js_3
-    const conditionsLimit = 5;
-    if(categories.length > 0){
-        categories.forEach( (category, index) => {
-            if(index < conditionsLimit){
-                condition += `'${category}' in topics`;
-                if(index < categories.length -1 && index < conditionsLimit -1){
-                    condition += ' || ';
-                }
-            }
-        });
-    }
-    else{
+    // const conditionsLimit = 5;
+    // if(categories.length > 0){
+    //     categories.forEach( (category, index) => {
+    //         if(index < conditionsLimit){
+    //             condition += `'${category}' in topics`;
+    //             if(index < categories.length -1 && index < conditionsLimit -1){
+    //                 condition += ' || ';
+    //             }
+    //         }
+    //     });
+    // }
+    // else
+    // {
        condition = `'Uncat' in topics`;
-    }
+    // }
 
     let url = env.firebaseMessageEndpoint;
     let headers = {
@@ -153,8 +155,10 @@ router.post('/send', (req, res) => {
             title: title,
             body: message,
             categories: categories,
+	          click_action: "FLUTTER_NOTIFICATION_CLICK"
         },
-        condition: condition
+        condition: condition,
+	      content_available: true
     };
 
     request.post({url: url, json: true, headers: headers, body: body, }, (err, response, responseBody) => {
