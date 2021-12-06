@@ -12,6 +12,8 @@ const axios = require('axios');
 router.use(express.json());
 
 // https://developers.google.com/calendar/api/v3/reference/events/list
+// usage: http://localhost:5001/api/events
+// usage: http://localhost:5001/api/events?categories=Volunteer,Community
 // GET all
 router.get('/', async function (req, res) {
 	let categories = req.body.categories || req.query.categories || req.body.category || req.query.category;
@@ -24,9 +26,7 @@ router.get('/', async function (req, res) {
 	if (categories) {
 		let query = {
             $or: [
-				// { 'summary': 'Saturday Meeting'}
-                { 'categories': {$exists: true,  $in: categories} },
-                { 'category': {$exists: true,  $in: categories} }, // TODO: remove when data cleanup is complete
+                { 'categories': {$exists: true,  $in: categories} }
             ]
         };
 
@@ -56,17 +56,10 @@ router.get('/', async function (req, res) {
 
 						for (var r of results) {
 							let mongoEvent = mongoEvents.find(x => x.id === r.id);
-							if (mongoEvent?.summary === 'Saturday Meeting') {
-								console.log('found one');
-							}
-							r.eventCategory = mongoEvent?.category || mongoEvent?.categories || null;
-							r.eventCategories = r.eventCategory; // TODO: remove?
+							r.eventCategories = mongoEvent?.category || mongoEvent?.categories || null;
 
 							if (mongoEvent) {
-								if (categories?.some(x => r.eventCategory?.includes(x)) || (categories.includes('Uncat') && (r.eventCategory === null || r.eventCategory === undefined))) {
-									if (mongoEvent?.summary === 'Saturday Meeting') {
-										console.log('found one');
-									}
+								if (categories?.some(x => r.eventCategories?.includes(x)) || (categories.includes('Uncat') && (r.eventCategories === null || r.eventCategories === undefined))) {
 									filteredResults.push(r);
 								}
 							}
